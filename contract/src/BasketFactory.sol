@@ -10,6 +10,9 @@ contract BasketFactory {
     address[] public allBasket;
     address[] public allBasketOfBasket;
 
+    mapping(address => address[]) userBaskets;
+    mapping(address => address[]) userBasketOfBaskets;
+
     event CreateBasket(
         address indexed creator,
         address indexed basketAddress,
@@ -50,9 +53,11 @@ contract BasketFactory {
             }(msg.sender);
             require(success, "Fund tokens failed");
             allBasket.push(basket);
+            userBaskets[msg.sender].push(basket);
             emit CreateBasket(msg.sender, basket, name, symbol, tokens);
         } else {
             allBasketOfBasket.push(basket);
+            userBasketOfBaskets[msg.sender].push(basket);
             emit CreateBasketOfBasket(msg.sender, basket, name, symbol, tokens);
         }
     }
@@ -83,5 +88,21 @@ contract BasketFactory {
             bytecode = type(UserBasket).creationCode;
         }
         return abi.encodePacked(bytecode, abi.encode(name, symbol, tokens));
+    }
+
+    function getAllBaskets() public view returns (address[] memory) {
+        return allBasket;
+    }
+
+    function getAllUserBaskets() public view returns (address[] memory) {
+        return userBaskets[msg.sender];
+    }
+
+    function getAllUserBasketOfBaskets()
+        public
+        view
+        returns (address[] memory)
+    {
+        return userBasketOfBaskets[msg.sender];
     }
 }

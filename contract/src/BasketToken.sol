@@ -113,4 +113,8 @@ contract ERC7621 is ERC20 {
             return false;
         }
     }
+
+    function getOwner() public view returns (address) {
+        return owner;
+    }
 }
