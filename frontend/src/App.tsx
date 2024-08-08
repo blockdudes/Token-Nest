@@ -4,6 +4,9 @@ import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { useActiveWalletConnectionStatus } from "thirdweb/react";
 import { connectWallet } from "./app/features/connectWalletSlice";
 
+
+import CreateBasket from "./components/integration/CreateBasket";
+
 function App() {
   const dispatch = useAppDispatch();
   const walletData = useAppSelector(state => state.connectWallet);
@@ -22,6 +25,8 @@ function App() {
   return (
     <div>
       <Header />
+
+      <CreateBasket />
     </div>
   )
 }

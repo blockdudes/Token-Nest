@@ -7,3 +7,8 @@ export type ConnectWalletInterface = {
     error: string | null;
     loading: boolean;
 };
+
+export type BasketInfo = {
+    addr: string;
+    percent: number;
+}
