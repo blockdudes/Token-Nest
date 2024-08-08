@@ -1,10 +1,8 @@
 import Header from "./components/Header";
-
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { useActiveWalletConnectionStatus } from "thirdweb/react";
 import { connectWallet } from "./app/features/connectWalletSlice";
-
 
 function App() {
   const dispatch = useAppDispatch();

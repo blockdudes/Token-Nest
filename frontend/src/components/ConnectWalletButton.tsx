@@ -5,7 +5,6 @@ import { sepolia } from "thirdweb/chains";
 
 const ConnectWalletButton = () => {
 
-    console.log(client);
     const wallets = [
         createWallet("io.metamask"),
         createWallet("com.coinbase.wallet"),
