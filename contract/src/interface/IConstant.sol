@@ -2,9 +2,8 @@
 pragma solidity ^0.8.13;
 
 interface IConstant {
-    struct TokenInfo {
-        string name;
+    struct BasketInfo {
         address addr;
-        uint256 percent;
+        uint8 percent;
     }
 }

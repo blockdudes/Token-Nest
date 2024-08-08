@@ -11,20 +11,20 @@ contract ERC7621 is ERC20 {
     IUniswapV2Router02 public uniswapRouter =
         IUniswapV2Router02(0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008);
     address public constant WETH = 0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9;
-    IConstant.TokenInfo[] public listedTokens;
+    IConstant.BasketInfo[] public listedTokens;
 
     uint256 public votes;
 
     constructor(
         string memory _name,
         string memory _symbol,
-        IConstant.TokenInfo[] memory tokens
+        IConstant.BasketInfo[] memory tokens
     ) ERC20(_name, _symbol) {
         owner = msg.sender;
         _initializeTokens(tokens);
     }
 
-    function _initializeTokens(IConstant.TokenInfo[] memory tokens) internal {
+    function _initializeTokens(IConstant.BasketInfo[] memory tokens) internal {
         require(tokens.length > 0, "ERC7621: No tokens provided");
         uint256 totalPercent = 0;
         for (uint256 i = 0; i < tokens.length; i++) {
@@ -46,7 +46,7 @@ contract ERC7621 is ERC20 {
         require(msg.value >= 0.01 ether, "ERC7621: Must deposit 0.01 ETH");
         uint256 totalFunds = calculateTotalFunds();
         for (uint256 i = 0; i < listedTokens.length; i++) {
-            IConstant.TokenInfo memory token = listedTokens[i];
+            IConstant.BasketInfo memory token = listedTokens[i];
             uint256 amountToSwap = (msg.value * token.percent) / 100;
             address[] memory path = new address[](2);
             path[0] = WETH;
@@ -75,7 +75,7 @@ contract ERC7621 is ERC20 {
         uint256 userSharePercent = (_lpValue / totalSupply()) * 100;
 
         for (uint256 i = 0; i < listedTokens.length; i++) {
-            IConstant.TokenInfo memory token = listedTokens[i];
+            IConstant.BasketInfo memory token = listedTokens[i];
             uint256 tokenBalance = IERC20(token.addr).balanceOf(address(this));
             uint256 amountToTransfer = (tokenBalance * userSharePercent) / 100;
 
