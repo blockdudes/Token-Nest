@@ -10,4 +10,6 @@ interface IBasketToken {
     ) external returns (bool);
 
     function vote(bool isUpVote) external;
+
+    function getOwner() external view returns (address);
 }
