@@ -1,22 +1,14 @@
-import { prepareContractCall, sendAndConfirmTransaction } from "thirdweb";
+import { prepareContractCall, sendAndConfirmTransaction, getContract } from "thirdweb";
 import { useActiveAccount } from "thirdweb/react";
 import { ethers } from "ethers";
-
-import { basketFactoryContract, prepareTxForCreatingBasket } from "../../utils/contracts";
-
+import { prepareTxForCreatingBasket } from "../../utils/contracts";
 import { useState } from "react";
 import { symbol } from "thirdweb/extensions/common";
-
 import { BasketInfo } from "../../types/types";
-
-// const basketFactoryContract = getContract({
-//     address: BASKET_FACTORY_CONTRACT_ADDRESS,
-//     abi: basketFactoryContractABI.abi as any,
-//     client: client,
-//     chain: sepolia
-// })
-
-
+import { basketTokenContractABI, userBasketsContractABI } from "../../utils/constant";
+import { client } from "../../thirdWebInfo";
+import { sepolia } from "thirdweb/chains";
+import { getBasketContract } from "../../utils/contracts";
 const CreateBasket = () => {
 
     const account = useActiveAccount();
@@ -54,7 +46,6 @@ const CreateBasket = () => {
         return true;
     };
 
-
     const basketCreate = async () => {
         try {
             if (validateForm()) {
@@ -62,7 +53,7 @@ const CreateBasket = () => {
                 const result = account && (await sendAndConfirmTransaction({ transaction: transaction, account: account }));
                 if (result) {
                     if (result.status === "success") {
-                        console.log("Public profile setup successful");
+                        console.log("created.");
                     } else {
                         console.error("Something went wrong");
                         throw Error("Something went wrong");
@@ -87,7 +78,7 @@ const CreateBasket = () => {
                 const result = account && (await sendAndConfirmTransaction({ transaction: transaction, account: account }));
                 if (result) {
                     if (result.status === "success") {
-                        console.log("Public profile setup successful");
+                        console.log("created.");
                     } else {
                         console.error("Something went wrong");
                         throw Error("Something went wrong");
@@ -142,10 +133,141 @@ const CreateBasket = () => {
 
     console.log(formData);
 
+    const basketDeposit = async (basketTokenContractAddress: string, ethValue: string) => {
+        try {
+            if (account) {
 
+                const basketTokenContract = getContract({
+                    address: basketTokenContractAddress,
+                    abi: basketTokenContractABI.abi as any,
+                    client: client,
+                    chain: sepolia
+                });
+
+                const transaction = prepareContractCall({
+                    contract: basketTokenContract,
+                    method: "function depositBasketToken(address _to) public payable returns (bool)",
+                    params: [account?.address],
+                    value: BigInt(ethers.utils.parseEther(ethValue).toString()),
+                    gas: BigInt(10000000)
+                });
+
+                const result = await sendAndConfirmTransaction({
+                    transaction: transaction,
+                    account: account
+                });
+
+                if (result) {
+                    if (result.status === "success") {
+                        console.log("deposit successfully");
+                    } else {
+                        console.error("Something went wrong");
+                        throw Error("Something went wrong");
+                    }
+                } else {
+                    console.log("Result not found!");
+                }
+            } else {
+                throw Error("connect your wallet!");
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    const basketOfBasketDeposit = async (userBasketContractAddress: string, ethValue: string) => {
+        try {
+            if (account) {
+
+                const userBasketContract = getContract({
+                    address: userBasketContractAddress,
+                    abi: userBasketsContractABI.abi as any,
+                    client: client,
+                    chain: sepolia
+                });
+
+                const transaction = prepareContractCall({
+                    contract: userBasketContract,
+                    method: "function deposit(address _to) public payable",
+                    params: [account.address],
+                    value: BigInt(ethers.utils.parseEther(ethValue).toString()),
+                    gas: BigInt(10000000)
+                });
+
+                const result = await sendAndConfirmTransaction({
+                    transaction: transaction,
+                    account: account
+                });
+
+                if (result) {
+                    if (result.status === "success") {
+                        console.log("deposit successfully");
+                    } else {
+                        console.error("Something went wrong");
+                        throw Error("Something went wrong");
+                    }
+                } else {
+                    console.log("Result not found!");
+                }
+            } else {
+                throw Error("connect your wallet!");
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    const basketWithdraw = async (basketTokenContractAddress: string, lpTokenAmount: string) => {
+        try {
+            if (account) {
+                const basketTokenContract = getBasketContract(basketTokenContractAddress, "BASKET")
+                const approveTransaction = prepareContractCall({
+                    contract: basketTokenContract,
+                    method: "function approve(address spender, uint256 value)",
+                    params: [basketTokenContractAddress, BigInt(lpTokenAmount)],
+                });
+                const approveResult = await sendAndConfirmTransaction({
+                    transaction: approveTransaction,
+                    account: account
+                });
+                if (approveResult) {
+                    if (approveResult.status === "success") {
+                        const transaction = prepareContractCall({
+                            contract: basketTokenContract,
+                            method: "function withdrawBasketToken(address _to, uint256 _lpValue) public returns (bool)",
+                            params: [account.address, BigInt(lpTokenAmount)]
+                        })
+                        const result = await sendAndConfirmTransaction({
+                            transaction: transaction,
+                            account: account
+                        });
+                        if (result) {
+                            if (result.status === "success") {
+                                console.log("deposit successfully");
+                            } else {
+                                console.error("Something went wrong");
+                                throw Error("Something went wrong");
+                            }
+                        } else {
+                            console.log("Result not found!");
+                        }
+                    } else {
+                        console.error("Something went wrong");
+                        throw Error("Something went wrong");
+                    }
+                } else {
+                    console.log("Result not found!");
+                }
+            } else {
+                throw Error("connect your wallet!");
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
     return (
         <div>
-            <button></button>
+            <button onClick={() => basketWithdraw("0x", "BASKET")}>check</button>
 
             <form action="">
                 <input
