@@ -13,7 +13,8 @@ contract ERC7621 is ERC20 {
     address public constant WETH = 0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9;
     IConstant.BasketInfo[] public listedTokens;
 
-    uint256 public votes;
+    uint256 public upVotes;
+    uint256 public downVotes;
 
     constructor(
         string memory _name,
@@ -96,8 +97,12 @@ contract ERC7621 is ERC20 {
         return true;
     }
 
-    function vote(bool isUpVote) public {
-        isUpVote ? votes += 1 : votes -= 1;
+    function upVote() public {
+        upVotes += 1;
+    }
+
+    function downVote() public {
+        downVotes += 1;
     }
 
     function calculateTotalFunds() internal view returns (uint256 totalFunds) {
