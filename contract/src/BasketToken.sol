@@ -9,7 +9,7 @@ import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 contract ERC7621 is ERC20 {
     address public owner;
     IUniswapV2Router02 public uniswapRouter =
-        IUniswapV2Router02(0xC532a74256D3Db42D0Bf7a0400fEFDbad7694008);
+        IUniswapV2Router02(0x86dcd3293C53Cf8EFd7303B57beb2a3F671dDE98);
     address public constant WETH = 0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9;
     IConstant.BasketInfo[] public listedTokens;
 
@@ -23,6 +23,13 @@ contract ERC7621 is ERC20 {
     ) ERC20(_name, _symbol) {
         owner = msg.sender;
         _initializeTokens(tokens);
+    }
+
+    struct ERC7621Data {
+        string name;
+        string symbol;
+        address tokenAddress;
+        IConstant.BasketInfo[] basketTokens;
     }
 
     function _initializeTokens(IConstant.BasketInfo[] memory tokens) internal {
@@ -52,9 +59,12 @@ contract ERC7621 is ERC20 {
             address[] memory path = new address[](2);
             path[0] = WETH;
             path[1] = token.addr;
-            uniswapRouter.swapExactETHForTokensSupportingFeeOnTransferTokens{
-                value: amountToSwap
-            }(0, path, address(this), 0);
+            uniswapRouter.swapExactETHForTokens{value: amountToSwap}(
+                0,
+                path,
+                address(this),
+                block.timestamp
+            );
         }
         uint256 userDepositFunds = calculateTotalFunds() - totalFunds;
         uint8 percent = 0;
@@ -89,7 +99,7 @@ contract ERC7621 is ERC20 {
                 0,
                 path,
                 _to,
-                0
+                block.timestamp
             );
         }
 
@@ -121,5 +131,15 @@ contract ERC7621 is ERC20 {
 
     function getOwner() public view returns (address) {
         return owner;
+    }
+
+    function getBasketData() public view returns (ERC7621Data memory) {
+        return
+            ERC7621Data({
+                name: name(),
+                symbol: symbol(),
+                tokenAddress: address(this),
+                basketTokens: listedTokens
+            });
     }
 }

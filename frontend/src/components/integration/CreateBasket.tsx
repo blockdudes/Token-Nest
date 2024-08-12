@@ -1,21 +1,26 @@
-import { prepareContractCall, sendAndConfirmTransaction, getContract } from "thirdweb";
-import { useActiveAccount } from "thirdweb/react";
+import { prepareContractCall, sendAndConfirmTransaction, getContract, readContract } from "thirdweb";
+import { useActiveAccount, useReadContract } from "thirdweb/react";
 import { ethers } from "ethers";
 import { prepareTxForCreatingBasket } from "../../utils/contracts";
 import { useState } from "react";
 import { symbol } from "thirdweb/extensions/common";
-import { BasketInfo } from "../../types/types";
-import { basketTokenContractABI, userBasketsContractABI } from "../../utils/constant";
+import { BasketInfo, BasketData } from "../../types/types";
+import { basketTokenContractABI, userBasketsContractABI, BASKET_FACTORY_CONTRACT_ADDRESS } from "../../utils/constant";
 import { client } from "../../thirdWebInfo";
 import { sepolia } from "thirdweb/chains";
 import { getBasketContract } from "../../utils/contracts";
+import { uniswapV2RouterABI } from "../../abis/uniswapV2RouterABI";
+import { tenderlySepolia } from "../../thirdWebInfo";
+import { TokenContractABI, USDC_CONTRACT_ADDRESS } from "../../utils/constant";
+
+
 const CreateBasket = () => {
 
     const account = useActiveAccount();
 
     const TOKEN_LIST = [
-        { name: 'USDC', addr: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
-        { name: 'USDT', addr: '0xdAC17F958D2ee523a2206206994597C13D831ec7' },
+        { name: 'USDC', addr: '0xf08A50178dfcDe18524640EA6618a1f965821715' },
+        // { name: 'USDT', addr: '0x58eb19ef91e8a6327fed391b51ae1887b833cc91' },
         // Add more tokens as needed
     ];
 
@@ -26,7 +31,6 @@ const CreateBasket = () => {
     });
 
     const [formError, setFormError] = useState<string | null>()
-
 
     const validateForm = (): boolean => {
         if (!formData.name.trim() || !formData.symbol.trim()) {
@@ -49,7 +53,10 @@ const CreateBasket = () => {
     const basketCreate = async () => {
         try {
             if (validateForm()) {
+                console.log("IDHAR")
                 const transaction = prepareTxForCreatingBasket(formData.name, formData.symbol, formData.selectedBasket, true);
+                console.log(transaction);
+
                 const result = account && (await sendAndConfirmTransaction({ transaction: transaction, account: account }));
                 if (result) {
                     if (result.status === "success") {
@@ -96,7 +103,6 @@ const CreateBasket = () => {
         }
     }
 
-
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prevData => ({
@@ -133,6 +139,8 @@ const CreateBasket = () => {
 
     console.log(formData);
 
+
+
     const basketDeposit = async (basketTokenContractAddress: string, ethValue: string) => {
         try {
             if (account) {
@@ -143,6 +151,7 @@ const CreateBasket = () => {
                     client: client,
                     chain: sepolia
                 });
+
 
                 const transaction = prepareContractCall({
                     contract: basketTokenContract,
@@ -220,7 +229,8 @@ const CreateBasket = () => {
     const basketWithdraw = async (basketTokenContractAddress: string, lpTokenAmount: string) => {
         try {
             if (account) {
-                const basketTokenContract = getBasketContract(basketTokenContractAddress, "BASKET")
+                const basketTokenContract = getBasketContract(basketTokenContractAddress, "BASKET");
+
                 const approveTransaction = prepareContractCall({
                     contract: basketTokenContract,
                     method: "function approve(address spender, uint256 value)",
@@ -265,9 +275,211 @@ const CreateBasket = () => {
             throw error;
         }
     }
+
+    const getTotalBasket = async (basketFactoryContractAddress: string) => {
+        try {
+            const getBasketFactoryContract = getBasketContract(basketFactoryContractAddress, "FACTORY");
+            const totalBasketAddress = await readContract({
+                contract: getBasketFactoryContract,
+                method: "function getAllBaskets() public view returns (address[] memory)",
+                params: []
+            });
+
+            console.log(totalBasketAddress);
+
+            for (const basketAddress of totalBasketAddress) {
+                console.log(basketAddress);
+
+                const getBasket = getBasketContract(basketAddress, "BASKET");
+                const getBasketData = await readContract({
+                    contract: getBasket,
+                    method: "getBasketData",
+                    params: []
+                });
+
+                console.log(":", getBasketData);
+
+                for (let token of getBasketData.basketTokens) {
+                    try {
+                        const tokenContract = getContract({
+                            address: token.addr,
+                            abi: TokenContractABI.abi as any,
+                            client: client,
+                            chain: tenderlySepolia
+                        });
+                        const tokenName = await readContract({
+                            contract: tokenContract,
+                            method: "symbol",
+                            params: []
+                        });
+                        console.log("name: ", tokenName)
+                        token.name = tokenName; // Add the name field
+                    } catch (error) {
+                        console.error(`Failed to fetch name for token at address ${token.addr}:`, error);
+                    }
+                }
+
+                console.log(":", getBasketData);
+            }
+
+            // console.log(getBasketFactoryContract);
+            // console.log(totalBasketAddress);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    const getUserCreatedTotalBasket = async () => {
+        try {
+
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    const getUserTotalBalance = async () => {
+        try {
+
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    const getUserTokenBalance = async () => {
+        try {
+
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    const getBasketBalance = async () => {
+        try {
+
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    const getBasketOfbasketByUser = async () => {
+        try {
+
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    // const readContractFunction = (basketTokenContractAddress: string) => {
+    //     try {
+
+    //         const basketTokenContract = getBasketContract(basketTokenContractAddress, "BASKET");
+    //         const { data, isLoading } = useReadContract({
+    //             contract: basketTokenContract,
+    //             method: "",
+    //             params: []
+    //         });
+
+    //         console.log(data, isLoading)
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    // }
+
+    // const getTotalBasket = async (basketTokenFactoryContractAddress: string) => {
+    //     try {
+    //         const basketTokenFactoryContract = getBasketContract()
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    // }
+
+
+    const uniswapAddLiquidity = async (tokenAddress: string, amountTokenDesired: string, amountETH: string) => {
+        try {
+            if (!account) throw new Error("Wallet not connected");
+            if (!ethers.utils.isAddress(tokenAddress)) throw new Error("Invalid token address");
+            if (isNaN(parseFloat(amountTokenDesired)) || isNaN(parseFloat(amountETH))) {
+                throw new Error("Invalid amount input");
+            }
+
+            const uniswapContract = getContract({
+                address: "0x86dcd3293C53Cf8EFd7303B57beb2a3F671dDE98",
+                abi: uniswapV2RouterABI as any,
+                client: client,
+                chain: tenderlySepolia
+            });
+
+            const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from now
+            const amountTokenMin = ethers.utils.parseUnits(amountTokenDesired, 6).mul(95).div(100); // 95% of desired amount
+            const amountETHMin = ethers.utils.parseEther(amountETH).mul(95).div(100); // 95% of desired ETH amount
+
+            const transactionLiquidityAddETH = prepareContractCall({
+                contract: uniswapContract,
+                method: "function addLiquidityETH(address token, uint amountTokenDesired, uint amountTokenMin, uint amountETHMin, address to, uint deadline) external payable returns (uint amountToken, uint amountETH, uint liquidity)",
+                params: [
+                    tokenAddress,
+                    BigInt(ethers.utils.parseUnits(amountTokenDesired, 6).toString()),
+                    BigInt(amountTokenMin.toString()),
+                    BigInt(amountETHMin.toString()),
+                    account.address,
+                    BigInt(deadline)
+                ],
+                value: BigInt(ethers.utils.parseEther(amountETH).toString())
+            });
+
+            const result = await sendAndConfirmTransaction({
+                transaction: transactionLiquidityAddETH,
+                account: account
+            });
+
+            if (result && result.status === "success") {
+                console.log("Liquidity added successfully");
+                return result;
+            } else {
+                throw new Error("Failed to add liquidity");
+            }
+        } catch (error) {
+            console.error("Error adding liquidity:", error);
+            throw error;
+        }
+    }
+
+    const approveTokenToUniswap = async (tokenAddress: string, amountTokenDesired: string) => {
+        try {
+            if (!account) throw new Error("Wallet not connected");
+            const tokenContract = getContract({
+                address: tokenAddress,
+                abi: TokenContractABI.abi as any,
+                client: client,
+                chain: tenderlySepolia
+            });
+
+
+            const approveTransaction = prepareContractCall({
+                contract: tokenContract,
+                method: "function approve(address spender, uint256 amount) public returns (bool)",
+                params: [
+                    "0x86dcd3293C53Cf8EFd7303B57beb2a3F671dDE98",
+                    BigInt(ethers.utils.parseUnits(amountTokenDesired, 6).toString())
+                ]
+            });
+
+            const approveResult = await sendAndConfirmTransaction({
+                transaction: approveTransaction,
+                account: account
+            });
+
+            if (!approveResult || approveResult.status !== "success") {
+                throw new Error("Failed to approve token spend");
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
     return (
         <div>
-            <button onClick={() => basketWithdraw("0x", "BASKET")}>check</button>
+            <button onClick={() => getTotalBasket(BASKET_FACTORY_CONTRACT_ADDRESS)}>check</button>
 
             <form action="">
                 <input

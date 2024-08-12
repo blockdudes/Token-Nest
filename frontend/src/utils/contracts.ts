@@ -1,11 +1,11 @@
 import { getContract, prepareContractCall } from "thirdweb";
 import { BASKET_FACTORY_CONTRACT_ADDRESS } from "./constant";
 import { sepolia } from "thirdweb/chains";
-import { client } from "../thirdWebInfo";
+import { client, tenderlySepolia } from "../thirdWebInfo";
 import { BasketInfo } from "../types/types";
 import { ethers } from "ethers";
 
-import { basketTokenContractABI, userBasketsContractABI, basketFactoryContractABI } from "./constant";
+import { basketTokenContractABI, userBasketsContractABI, basketFactoryContractABI, TokenContractABI } from "./constant";
 
 // export const basketFactoryContract = getContract({
 //     address: BASKET_FACTORY_CONTRACT_ADDRESS,
@@ -20,14 +20,14 @@ export const getBasketContract = (address: string, contract: string) => {
         address: address,
         abi: abi,
         client: client,
-        chain: sepolia
+        chain: tenderlySepolia
     });
 }
 
 export const prepareTxForCreatingBasket = (name: string, symbol: string, tokens: BasketInfo[], isCreateBasketToken: boolean) => {
     return prepareContractCall({
         contract: getBasketContract(BASKET_FACTORY_CONTRACT_ADDRESS, "FACTORY"),
-        method: "function createBasket(string memory name, string memory symbol, IConstant.BasketInfo[] memory tokens, bool isCreateBasketToken) public payable",
+        method: "createBasket",
         params: [name, symbol, tokens, isCreateBasketToken],
         value: isCreateBasketToken ? BigInt(ethers.utils.parseEther("0.01").toString()) : BigInt(ethers.utils.parseEther("0").toString()),
         gas: BigInt(10000000)

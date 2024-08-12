@@ -12,3 +12,16 @@ export type BasketInfo = {
     addr: string;
     percent: number;
 }
+
+export type BasketTokenData = {
+    name: string;
+    address: string;
+    percent: number;
+}
+
+export type BasketData = {
+    name: string;
+    symbol: string;
+    address: string;
+    tokens: BasketTokenData[]
+}
