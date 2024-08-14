@@ -3,43 +3,42 @@ import { ConnectWalletInterface } from "../../types/types";
 import { ethers } from "ethers";
 
 const initialState: ConnectWalletInterface = {
-    provider: null,
-    signer: null,
-    address: null,
-    loading: false,
-    error: null,
+  provider: null,
+  signer: null,
+  address: null,
+  loading: false,
+  error: null,
 };
 
 type ConnectWalletReturnType =
-    | {
-        provider: ethers.providers.Web3Provider;
-        signer: ethers.providers.JsonRpcSigner;
-        address: string;
+  | {
+      provider: ethers.providers.Web3Provider;
+      signer: ethers.providers.JsonRpcSigner;
+      address: string;
     }
-    | undefined;
-
+  | undefined;
 
 export const connectWallet = createAsyncThunk<
-    ConnectWalletReturnType,
-    void,
-    {}
+  ConnectWalletReturnType,
+  void,
+  {}
 >("connectWallet", async (_, { rejectWithValue }) => {
-    try {
-        if (typeof (window as any).ethereum != "undefined") {
-            const provider = new ethers.providers.Web3Provider(
-                (window as any).ethereum
-            );
-            const signer = provider.getSigner();
-            const address = await signer.getAddress();
-            return {
-                provider: provider,
-                signer: signer,
-                address: address,
-            };
-        }
-    } catch (error) {
-        return rejectWithValue(error);
+  try {
+    if (typeof (window as any).ethereum != "undefined") {
+      const provider = new ethers.providers.Web3Provider(
+        (window as any).ethereum
+      );
+      const signer = provider.getSigner();
+      const address = await signer.getAddress();
+      return {
+        provider: provider,
+        signer: signer,
+        address: address,
+      };
     }
+  } catch (error) {
+    return rejectWithValue(error);
+  }
 });
 
 const connectWalletSlice = createSlice({
@@ -57,6 +56,7 @@ const connectWalletSlice = createSlice({
             state.address = action.payload?.address ?? null;
         });
         builder.addCase(connectWallet.rejected, (state, action) => {
+            console.log("error: ");
             state.loading = false;
             state.error = action.payload as string;
         });
