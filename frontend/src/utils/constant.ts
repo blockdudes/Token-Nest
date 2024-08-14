@@ -3,7 +3,7 @@ export { userBasketsContractABI } from "../abis/userBasketsContractABI";
 export { basketFactoryContractABI } from "../abis/basketFactoryContractABI";
 export { TokenContractABI } from "../abis/TokenContractABI";
 
-export const BASKET_FACTORY_CONTRACT_ADDRESS = "0xA0Ae925f50F13F945580B528fbA8cb5072b080BF";
+export const BASKET_FACTORY_CONTRACT_ADDRESS = "0x9CF86E24E8A01ca6D220389d96F38B853CE32355";
 
 export const USDC_CONTRACT_ADDRESS = "0xf08A50178dfcDe18524640EA6618a1f965821715";
 export const USDT_CONTRACT_ADDRESS = "0x7169D38820dfd117C3FA1f22a697dBA58d90BA06";

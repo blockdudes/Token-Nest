@@ -94,15 +94,15 @@ contract BasketFactory {
         return allBasket;
     }
 
-    function getAllUserBaskets() public view returns (address[] memory) {
-        return userBaskets[msg.sender];
+    function getAllUserBaskets(
+        address account
+    ) public view returns (address[] memory) {
+        return userBaskets[account];
     }
 
-    function getAllUserBasketOfBaskets()
-        public
-        view
-        returns (address[] memory)
-    {
-        return userBasketOfBaskets[msg.sender];
+    function getAllUserBasketOfBaskets(
+        address account
+    ) public view returns (address[] memory) {
+        return userBasketOfBaskets[account];
     }
 }

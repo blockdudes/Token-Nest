@@ -11,17 +11,40 @@ export type ConnectWalletInterface = {
 export type BasketInfo = {
     addr: string;
     percent: number;
+    image: string;
 }
 
 export type BasketTokenData = {
     name: string;
+    symbol: string;
     address: string;
     percent: number;
+    image: string;
+    balance: string;
+    balanceInUSD: string;
 }
 
 export type BasketData = {
-    name: string;
-    symbol: string;
-    address: string;
-    tokens: BasketTokenData[]
+    name: string | null;
+    symbol: string | null;
+    address: string | null;
+    tokens: BasketTokenData[] | null;
+    createdAt: string | null;
+    downVotes: string | null;
+    upVotes: string | null;
+    percent: string | null;
+    balance: number | null;
+    loading: boolean;
+    error: string | null;
+}
+
+export type UserBasketOfBasketData = {
+    name: string | null;
+    symbol: string | null;
+    address: string | null;
+    basket: BasketData[] | null;
+    createdAt: string | null;
+    balance: number | null;
+    loading: boolean;
+    error: string | null;
 }

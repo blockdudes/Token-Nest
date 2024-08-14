@@ -29,7 +29,7 @@ export const prepareTxForCreatingBasket = (name: string, symbol: string, tokens:
         contract: getBasketContract(BASKET_FACTORY_CONTRACT_ADDRESS, "FACTORY"),
         method: "createBasket",
         params: [name, symbol, tokens, isCreateBasketToken],
-        value: isCreateBasketToken ? BigInt(ethers.utils.parseEther("0.01").toString()) : BigInt(ethers.utils.parseEther("0").toString()),
+        value: isCreateBasketToken ? BigInt(ethers.utils.parseEther("1").toString()) : BigInt(ethers.utils.parseEther("0").toString()),
         gas: BigInt(10000000)
     });
 }

@@ -11,17 +11,28 @@ import { sepolia } from "thirdweb/chains";
 import { getBasketContract } from "../../utils/contracts";
 import { uniswapV2RouterABI } from "../../abis/uniswapV2RouterABI";
 import { tenderlySepolia } from "../../thirdWebInfo";
-import { TokenContractABI, USDC_CONTRACT_ADDRESS } from "../../utils/constant";
+import { TokenContractABI, USDC_CONTRACT_ADDRESS, USDT_CONTRACT_ADDRESS } from "../../utils/constant";
 
+import { useAppSelector, useAppDispatch } from "../../app/hooks";
+import { getTotalBasket } from "../../app/features/totalBasketSlice";
+import { getUserTotalBasket } from "../../app/features/userTotalBasketSlice";
+
+import { getUserTotalBasketOfBasket } from "../../app/features/userBasketOfBasketSlice";
 
 const CreateBasket = () => {
+
+    const dispatch = useAppDispatch();
+    const totalBasket = useAppSelector((state) => state.totalBasket);
+    const userTotalBasket = useAppSelector((state) => state.userTotalBasket);
 
     const account = useActiveAccount();
 
     const TOKEN_LIST = [
-        { name: 'USDC', addr: '0xf08A50178dfcDe18524640EA6618a1f965821715' },
+        { name: 'USDT', addr: USDT_CONTRACT_ADDRESS },
         // { name: 'USDT', addr: '0x58eb19ef91e8a6327fed391b51ae1887b833cc91' },
         // Add more tokens as needed
+
+        { name: "Basket1", addr: "0x383f848E7F009ddfdeD86b922Cfc38F29e30809c" },
     ];
 
     const [formData, setFormData] = useState({
@@ -53,9 +64,9 @@ const CreateBasket = () => {
     const basketCreate = async () => {
         try {
             if (validateForm()) {
-                console.log("IDHAR")
+
                 const transaction = prepareTxForCreatingBasket(formData.name, formData.symbol, formData.selectedBasket, true);
-                console.log(transaction);
+
 
                 const result = account && (await sendAndConfirmTransaction({ transaction: transaction, account: account }));
                 if (result) {
@@ -117,7 +128,7 @@ const CreateBasket = () => {
             if (checked) {
                 return {
                     ...prevData,
-                    selectedBasket: [...prevData.selectedBasket, { addr, percent: 0 }],
+                    selectedBasket: [...prevData.selectedBasket, { addr, percent: 0, image: "" }],
                 };
             } else {
                 return {
@@ -128,16 +139,14 @@ const CreateBasket = () => {
         });
     };
 
-    const handleTokenPercentChange = (addr: string, percent: number) => {
+    const handleTokenPercentChange = (addr: string, percent: number, image: string) => {
         setFormData(prevData => ({
             ...prevData,
             selectedBasket: prevData.selectedBasket.map(token =>
-                token.addr === addr ? { ...token, percent } : token
+                token.addr === addr ? { ...token, percent, image } : token
             ),
         }));
     };
-
-    console.log(formData);
 
 
 
@@ -276,51 +285,60 @@ const CreateBasket = () => {
         }
     }
 
-    const getTotalBasket = async (basketFactoryContractAddress: string) => {
+    const getTotalBask = async (basketFactoryContractAddress: string) => {
         try {
-            const getBasketFactoryContract = getBasketContract(basketFactoryContractAddress, "FACTORY");
-            const totalBasketAddress = await readContract({
-                contract: getBasketFactoryContract,
-                method: "function getAllBaskets() public view returns (address[] memory)",
-                params: []
-            });
 
-            console.log(totalBasketAddress);
-
-            for (const basketAddress of totalBasketAddress) {
-                console.log(basketAddress);
-
-                const getBasket = getBasketContract(basketAddress, "BASKET");
-                const getBasketData = await readContract({
-                    contract: getBasket,
-                    method: "getBasketData",
-                    params: []
-                });
-
-                console.log(":", getBasketData);
-
-                for (let token of getBasketData.basketTokens) {
-                    try {
-                        const tokenContract = getContract({
-                            address: token.addr,
-                            abi: TokenContractABI.abi as any,
-                            client: client,
-                            chain: tenderlySepolia
-                        });
-                        const tokenName = await readContract({
-                            contract: tokenContract,
-                            method: "symbol",
-                            params: []
-                        });
-                        console.log("name: ", tokenName)
-                        token.name = tokenName; // Add the name field
-                    } catch (error) {
-                        console.error(`Failed to fetch name for token at address ${token.addr}:`, error);
-                    }
-                }
-
-                console.log(":", getBasketData);
+            if (account) {
+                dispatch(getTotalBasket(BASKET_FACTORY_CONTRACT_ADDRESS));
+                dispatch(getUserTotalBasket(account?.address));
+                console.log("HERE")
+                dispatch(getUserTotalBasketOfBasket(account?.address));
             }
+
+
+            // const getBasketFactoryContract = getBasketContract(basketFactoryContractAddress, "FACTORY");
+            // const totalBasketAddress = await readContract({
+            //     contract: getBasketFactoryContract,
+            //     method: "function getAllBaskets() public view returns (address[] memory)",
+            //     params: []
+            // });
+
+            // console.log(totalBasketAddress);
+
+            // for (const basketAddress of totalBasketAddress) {
+            //     console.log(basketAddress);
+
+            //     const getBasket = getBasketContract(basketAddress, "BASKET");
+            //     const getBasketData = await readContract({
+            //         contract: getBasket,
+            //         method: "getBasketData",
+            //         params: []
+            //     });
+
+            //     console.log(":", getBasketData);
+
+            //     for (let token of getBasketData.basketTokens) {
+            //         try {
+            //             const tokenContract = getContract({
+            //                 address: token.addr,
+            //                 abi: TokenContractABI.abi as any,
+            //                 client: client,
+            //                 chain: tenderlySepolia
+            //             });
+            //             const tokenName = await readContract({
+            //                 contract: tokenContract,
+            //                 method: "symbol",
+            //                 params: []
+            //             });
+            //             console.log("name: ", tokenName)
+            //             token.name = tokenName; // Add the name field
+            //         } catch (error) {
+            //             console.error(`Failed to fetch name for token at address ${token.addr}:`, error);
+            //         }
+            //     }
+
+            //     console.log(":", getBasketData);
+            // }
 
             // console.log(getBasketFactoryContract);
             // console.log(totalBasketAddress);
@@ -479,7 +497,9 @@ const CreateBasket = () => {
 
     return (
         <div>
-            <button onClick={() => getTotalBasket(BASKET_FACTORY_CONTRACT_ADDRESS)}>check</button>
+            <button onClick={() => getTotalBask(BASKET_FACTORY_CONTRACT_ADDRESS)}>Get Total Basket</button> <br />
+            <button onClick={createBasketOfBasket}>Create Basket Of Basket</button> <br />
+            <button onClick={basketCreate}>Create Basket</button> <br />
 
             <form action="">
                 <input
@@ -510,7 +530,7 @@ const CreateBasket = () => {
                             <input
                                 type="number"
                                 value={formData.selectedBasket.find(t => t.addr === token.addr)?.percent || 0}
-                                onChange={(e) => handleTokenPercentChange(token.addr, Number(e.target.value))}
+                                onChange={(e) => handleTokenPercentChange(token.addr, Number(e.target.value), "https:")}
                                 min="0"
                                 max="100"
                             />

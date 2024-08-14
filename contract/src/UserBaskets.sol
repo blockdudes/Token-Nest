@@ -9,6 +9,14 @@ contract UserBasket {
     string public symbol;
     address public owner;
     IConstant.BasketInfo[] public listedBasket;
+    uint256 public createdAt;
+
+    struct UserBasketOfBasketData {
+        string name;
+        string symbol;
+        uint256 createdAt;
+        IConstant.BasketInfo[] basketTokens;
+    }
 
     constructor(
         string memory _name,
@@ -19,6 +27,7 @@ contract UserBasket {
         symbol = _symbol;
         owner = msg.sender;
         _initializeBaskets(baskets);
+        createdAt = block.timestamp;
     }
 
     function _initializeBaskets(
@@ -59,5 +68,19 @@ contract UserBasket {
 
     function getOwner() public view returns (address) {
         return owner;
+    }
+
+    function getUserBasketOfBasketData()
+        public
+        view
+        returns (UserBasketOfBasketData memory)
+    {
+        return
+            UserBasketOfBasketData({
+                name: name,
+                symbol: symbol,
+                createdAt: createdAt,
+                basketTokens: listedBasket
+            });
     }
 }

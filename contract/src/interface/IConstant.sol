@@ -5,5 +5,6 @@ interface IConstant {
     struct BasketInfo {
         address addr;
         uint8 percent;
+        string image;
     }
 }

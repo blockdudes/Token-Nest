@@ -15,6 +15,7 @@ contract ERC7621 is ERC20 {
 
     uint256 public upVotes;
     uint256 public downVotes;
+    uint256 public createdAt;
 
     constructor(
         string memory _name,
@@ -23,6 +24,7 @@ contract ERC7621 is ERC20 {
     ) ERC20(_name, _symbol) {
         owner = msg.sender;
         _initializeTokens(tokens);
+        createdAt = block.timestamp;
     }
 
     struct ERC7621Data {
@@ -30,6 +32,9 @@ contract ERC7621 is ERC20 {
         string symbol;
         address tokenAddress;
         IConstant.BasketInfo[] basketTokens;
+        uint256 upVotes;
+        uint256 downVotes;
+        uint256 createdAt;
     }
 
     function _initializeTokens(IConstant.BasketInfo[] memory tokens) internal {
@@ -90,6 +95,11 @@ contract ERC7621 is ERC20 {
             uint256 tokenBalance = IERC20(token.addr).balanceOf(address(this));
             uint256 amountToTransfer = (tokenBalance * userSharePercent) / 100;
 
+            IERC20(token.addr).approve(
+                address(uniswapRouter),
+                amountToTransfer
+            );
+
             address[] memory path = new address[](2);
             path[0] = WETH;
             path[1] = token.addr;
@@ -139,7 +149,12 @@ contract ERC7621 is ERC20 {
                 name: name(),
                 symbol: symbol(),
                 tokenAddress: address(this),
-                basketTokens: listedTokens
+                basketTokens: listedTokens,
+                upVotes: upVotes,
+                downVotes: downVotes,
+                createdAt: createdAt
             });
     }
+
+    // function getUserBasketData(address _user) public view returns ()
 }

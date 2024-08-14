@@ -20,8 +20,6 @@ function App() {
     }
   }, [connectionStatus])
 
-  console.log(walletData);
-
   return (
     <div>
       <Header />

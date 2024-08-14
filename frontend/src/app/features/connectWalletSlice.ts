@@ -57,7 +57,6 @@ const connectWalletSlice = createSlice({
             state.address = action.payload?.address ?? null;
         });
         builder.addCase(connectWallet.rejected, (state, action) => {
-            console.log("error: ");
             state.loading = false;
             state.error = action.payload as string;
         });
