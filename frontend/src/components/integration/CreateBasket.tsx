@@ -24,6 +24,9 @@ const CreateBasket = () => {
     const dispatch = useAppDispatch();
     const totalBasket = useAppSelector((state) => state.totalBasket);
     const userTotalBasket = useAppSelector((state) => state.userTotalBasket);
+    const userTotalBasketOfBasket = useAppSelector((state) => state.userTotalBasketOfBasket);
+
+    console.log("*****", totalBasket, userTotalBasket, userTotalBasketOfBasket);
 
     const account = useActiveAccount();
 

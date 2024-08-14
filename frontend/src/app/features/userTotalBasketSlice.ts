@@ -8,87 +8,37 @@ import { TokenContractABI, BASKET_FACTORY_CONTRACT_ADDRESS } from "../../utils/c
 import { store } from "../store";
 // import axios from "axios";
 
-const initialState: BasketData = {
-    name: null,
-    symbol: null,
-    address: null,
-    tokens: null,
-    createdAt: null,
-    downVotes: null,
-    upVotes: null,
-    percent: null,
-    balance: null,
+
+type UserBasketInitialState = {
+    userTotalBasket: BasketData[] | null,
+    loading: boolean,
+    error: string | null,
+}
+
+const initialState: UserBasketInitialState = {
+    userTotalBasket: null,
     loading: false,
     error: null,
 }
 
+// const initialState: BasketData = {
+//     name: null,
+//     symbol: null,
+//     address: null,
+//     tokens: null,
+//     createdAt: null,
+//     downVotes: null,
+//     upVotes: null,
+//     percent: null,
+//     balance: null,
+//     loading: false,
+//     error: null,
+// }
+
 export const getUserTotalBasket = createAsyncThunk("getUserTotalBasket", async (address: string, { rejectWithValue }) => {
     try {
-        let userBasketData: BasketData = initialState;
+        let userBasketData: BasketData[] = [];
         const getBasketFactoryContract = getBasketContract(BASKET_FACTORY_CONTRACT_ADDRESS, "FACTORY");
-
-
-
-
-
-        // Basket of Basket START //
-        console.log("Basket of Basket START")
-
-        const totalBasketOfBasket = await readContract({
-            contract: getBasketFactoryContract,
-            method: "function getAllUserBasketOfBaskets(address account) public view returns (address[] memory)",
-            params: [address]
-        });
-
-        for (const basketOfBasketAddress of totalBasketOfBasket) {
-            const getBasketOfBasketContract = getBasketContract(basketOfBasketAddress, "USER_BASKET");
-
-            const getBasketOfBasketData = await readContract({
-                contract: getBasketOfBasketContract,
-                method: "getUserBasketOfBasketData",
-                params: []
-            });
-
-            console.log(getBasketOfBasketData);
-            // console.log(store.getState());
-
-            // const [name, symbol, createdAt] = await Promise.all([
-            //     readContract({
-            //         contract: getBasketOfBasket,
-            //         method: "name",
-            //         params: []
-            //     }),
-            //     readContract({
-            //         contract: getBasketOfBasket,
-            //         method: "symbol",
-            //         params: []
-            //     }),
-            //     readContract({
-            //         contract: getBasketOfBasket,
-            //         method: "createdAt",
-            //         params: []
-            //     })
-            // ])
-            // const getBasketOfBasketData = await readContract({
-            //     contract: getBasketOfBasket,
-            //     method: "name",
-            //     params: []
-            // });
-
-            // console.log(name, symbol, createdAt, basketOfBasketAddress);
-        }
-
-        console.log("totalBasketOfBasket: ", totalBasketOfBasket);
-
-        console.log("Basket of Basket END")
-
-        // Basket of Basket END //
-
-
-
-
-
-
 
         const totalBasketAddress = await readContract({
             contract: getBasketFactoryContract,
@@ -163,7 +113,7 @@ export const getUserTotalBasket = createAsyncThunk("getUserTotalBasket", async (
 
                 // console.log("Response: ", response);                
             }
-            userBasketData = {
+            userBasketData.push({
                 name: getBasketData.name,
                 symbol: getBasketData.symbol,
                 address: getBasketData.tokenAddress,
@@ -175,12 +125,12 @@ export const getUserTotalBasket = createAsyncThunk("getUserTotalBasket", async (
                 balance: null,
                 loading: false,
                 error: null,
-            };
+            });
         }
 
         console.log(userBasketData);
 
-        return userBasketData;
+        return { userBasketData };
     } catch (error) {
         return rejectWithValue(error);
     }
@@ -195,15 +145,9 @@ const userTotalBasketSlice = createSlice({
             state.loading = true;
         });
         builder.addCase(getUserTotalBasket.fulfilled, (state, action) => {
-            state.name = action.payload.name ?? null;
-            state.symbol = action.payload.symbol ?? null;
-            state.address = action.payload.address ?? null;
-            state.tokens = action.payload.tokens ?? null;
-            state.createdAt = action.payload.createdAt ?? null;
-            state.downVotes = action.payload.downVotes ?? null;
-            state.upVotes = action.payload.upVotes ?? null;
-            state.loading = action.payload.loading ?? null;
-            state.error = action.payload.error ?? null;
+            state.userTotalBasket = action.payload.userBasketData;
+            state.loading = false;
+            state.error = null;
         });
         builder.addCase(getUserTotalBasket.rejected, (state, action) => {
             state.loading = false;

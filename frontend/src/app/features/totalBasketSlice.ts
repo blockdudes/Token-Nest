@@ -5,23 +5,35 @@ import { getContract, readContract } from "thirdweb";
 import { client, tenderlySepolia } from "../../thirdWebInfo";
 import { TokenContractABI } from "../../utils/constant";
 
-const initialState: BasketData = {
-    name: null,
-    symbol: null,
-    address: null,
-    tokens: null,
-    createdAt: null,
-    downVotes: null,
-    upVotes: null,
-    percent: null,
-    balance: null,
+// const initialState: BasketData = {
+//     name: null,
+//     symbol: null,
+//     address: null,
+//     tokens: null,
+//     createdAt: null,
+//     downVotes: null,
+//     upVotes: null,
+//     percent: null,
+//     balance: null,
+//     loading: false,
+//     error: null,
+// }
+
+type TotalInitialState = {
+    totalBasket: BasketData[] | null,
+    loading: boolean,
+    error: string | null,
+}
+
+const initialState: TotalInitialState = {
+    totalBasket: null,
     loading: false,
     error: null,
 }
 
 export const getTotalBasket = createAsyncThunk("getTotalBasket", async (basketFactoryContractAddress: string, { rejectWithValue }) => {
     try {
-        let totalBasketData: BasketData = initialState;
+        let totalBasketData: BasketData[] = [];
 
         const getBasketFactoryContract = getBasketContract(basketFactoryContractAddress, "FACTORY");
         const totalBasketAddress = await readContract({
@@ -68,7 +80,7 @@ export const getTotalBasket = createAsyncThunk("getTotalBasket", async (basketFa
                 token.balance = tokenBalance;
             }
 
-            totalBasketData = {
+            totalBasketData.push({
                 name: getBasketData.name,
                 symbol: getBasketData.symbol,
                 address: getBasketData.tokenAddress,
@@ -80,9 +92,9 @@ export const getTotalBasket = createAsyncThunk("getTotalBasket", async (basketFa
                 percent: null,
                 loading: false,
                 error: null,
-            };
+            });
         }
-        return totalBasketData;
+        return { totalBasketData };
 
     } catch (error) {
         return rejectWithValue(error);
@@ -98,15 +110,9 @@ const totalBasketSlice = createSlice({
             state.loading = true;
         });
         builder.addCase(getTotalBasket.fulfilled, (state, action) => {
-            state.name = action.payload.name ?? null;
-            state.symbol = action.payload.symbol ?? null;
-            state.address = action.payload.address ?? null;
-            state.tokens = action.payload.tokens ?? null;
-            state.createdAt = action.payload.createdAt ?? null;
-            state.downVotes = action.payload.downVotes ?? null;
-            state.upVotes = action.payload.upVotes ?? null;
-            state.loading = action.payload.loading ?? null;
-            state.error = action.payload.error ?? null;
+            state.totalBasket = action.payload.totalBasketData;
+            state.loading = false;
+            state.error = null;
         });
         builder.addCase(getTotalBasket.rejected, (state, action) => {
             state.loading = false;

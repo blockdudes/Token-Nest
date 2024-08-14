@@ -6,13 +6,15 @@ import { client, tenderlySepolia } from "../../thirdWebInfo";
 import { TokenContractABI, BASKET_FACTORY_CONTRACT_ADDRESS } from "../../utils/constant";
 import { UserBasketOfBasketData } from "../../types/types";
 
-const initialState: UserBasketOfBasketData = {
-    name: null,
-    symbol: null,
-    address: null,
-    basket: null,
-    balance: 0,
-    createdAt: null,
+
+type UserBasketOfBasketInitialState = {
+    userTotalBasketOfBasket: UserBasketOfBasketData[] | null,
+    loading: boolean,
+    error: string | null,
+}
+
+const initialState: UserBasketOfBasketInitialState = {
+    userTotalBasketOfBasket: null,
     loading: false,
     error: null,
 }
@@ -125,7 +127,7 @@ export const getUserTotalBasketOfBasket = createAsyncThunk("getUserTotalBasketOf
             userBasketOfBasket.push(basketOfBasketItem);
         }
 
-        console.log(userBasketOfBasket);
+        return { userBasketOfBasket };
     } catch (error) {
         return rejectWithValue(error);
     }
@@ -140,15 +142,9 @@ const userTotalBasketOfBasketSlice = createSlice({
             state.loading = true;
         });
         builder.addCase(getUserTotalBasketOfBasket.fulfilled, (state, action) => {
-            // state.name = action.payload.name ?? null;
-            // state.symbol = action.payload.symbol ?? null;
-            // state.address = action.payload.address ?? null;
-            // state.tokens = action.payload.tokens ?? null;
-            // state.createdAt = action.payload.createdAt ?? null;
-            // state.downVotes = action.payload.downVotes ?? null;
-            // state.upVotes = action.payload.upVotes ?? null;
-            // state.loading = action.payload.loading ?? null;
-            // state.error = action.payload.error ?? null;
+            state.userTotalBasketOfBasket = action.payload.userBasketOfBasket;
+            state.loading = false;
+            state.error = null;
         });
         builder.addCase(getUserTotalBasketOfBasket.rejected, (state, action) => {
             state.loading = false;
