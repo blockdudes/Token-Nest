@@ -1,7 +1,6 @@
-import { client } from "../thirdWebInfo";
+import { client, tenderlyMainnet } from "../thirdWebInfo";
 import { createWallet, walletConnect } from "thirdweb/wallets";
 import { ConnectButton, lightTheme } from "thirdweb/react";
-import { sepolia } from "thirdweb/chains";
 
 const ConnectWalletButton = () => {
   console.log(client);
@@ -14,7 +13,7 @@ const ConnectWalletButton = () => {
   return (
     <ConnectButton
       client={client}
-      chains={[sepolia]}
+      chains={[tenderlyMainnet]}
       wallets={wallets}
       theme={lightTheme({
         colors: {

@@ -15,9 +15,9 @@ const CreateBasketCard = ({
 }: {
   basketName: string;
   setBasketName: (value: string) => void;
-  tokens: (TokenType & { percentage: `${number}%` })[];
+  tokens: (TokenType & { percent: `${number}%` })[];
   removeToken: (token: TokenType) => void;
-  setTokenPercentage: (token: TokenType, percentage: `${number}%`) => void;
+  setTokenPercentage: (token: TokenType, percent: `${number}%`) => void;
   setTokenSelectorOpen: (value: boolean) => void;
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -64,7 +64,7 @@ const CreateBasketCard = ({
               <div className="text-2xl font-semibold">{index + 1}.</div>
               <div className="flex justify-between items-center gap-2 w-5/6 bg-custom-gray-4/10 p-4 rounded-lg">
                 <div className="flex justify-center items-center gap-4">
-                  <div className="text-3xl font-semibold">{token.name}</div>
+                  <div className="text-3xl font-semibold">{token.name} ({token.symbol})</div>
                   <img
                     src={token.image}
                     alt={token.name}
@@ -79,7 +79,7 @@ const CreateBasketCard = ({
                       labelProps={{
                         className: "hidden",
                       }}
-                      value={token.percentage.slice(0, -1)}
+                      value={token.percent.slice(0, -1)}
                       onChange={(e) => {
                         const percentage: `${number}%` = `${parseFloat(
                           parseFloat(e.target.value).toFixed(2)
@@ -90,7 +90,7 @@ const CreateBasketCard = ({
                             .filter((t) => t.name !== token.name)
                             .reduce(
                               (acc, curr) =>
-                                acc + parseFloat(curr.percentage.slice(0, -1)),
+                                acc + parseFloat(curr.percent.slice(0, -1)),
                               0
                             )
                         ).toFixed(2);

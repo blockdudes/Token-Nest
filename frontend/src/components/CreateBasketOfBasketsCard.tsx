@@ -15,9 +15,9 @@ const CreateBasketOfBasketsCard = ({
 }: {
   basketName: string;
   setBasketName: (value: string) => void;
-  baskets: (BasketType & { percentage: `${number}%` })[];
+  baskets: (BasketType & { percent: `${number}%` })[];
   removeBasket: (basket: BasketType) => void;
-  setBasketPercentage: (basket: BasketType, percentage: `${number}%`) => void;
+  setBasketPercentage: (basket: BasketType, percent: `${number}%`) => void;
   setBasketSelectorOpen: (value: boolean) => void;
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -69,7 +69,7 @@ const CreateBasketOfBasketsCard = ({
                       labelProps={{
                         className: "hidden",
                       }}
-                      value={basket.percentage.slice(0, -1)}
+                      value={basket.percent.slice(0, -1)}
                       onChange={(e) => {
                         const percentage: `${number}%` = `${parseFloat(
                           parseFloat(e.target.value).toFixed(2)
@@ -80,7 +80,7 @@ const CreateBasketOfBasketsCard = ({
                             .filter((b) => b.name !== basket.name)
                             .reduce(
                               (acc, curr) =>
-                                acc + parseFloat(curr.percentage.slice(0, -1)),
+                                acc + parseFloat(curr.percent.slice(0, -1)),
                               0
                             )
                         ).toFixed(2);

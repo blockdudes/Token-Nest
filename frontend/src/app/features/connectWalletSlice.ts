@@ -42,25 +42,25 @@ export const connectWallet = createAsyncThunk<
 });
 
 const connectWalletSlice = createSlice({
-    name: "connectWallet",
-    initialState,
-    reducers: {},
-    extraReducers: (builder) => {
-        builder.addCase(connectWallet.pending, (state) => {
-            state.loading = true;
-        });
-        builder.addCase(connectWallet.fulfilled, (state, action) => {
-            state.loading = false;
-            state.provider = action.payload?.provider ?? null;
-            state.signer = action.payload?.signer ?? null;
-            state.address = action.payload?.address ?? null;
-        });
-        builder.addCase(connectWallet.rejected, (state, action) => {
-            console.log("error: ");
-            state.loading = false;
-            state.error = action.payload as string;
-        });
-    },
+  name: "connectWallet",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(connectWallet.pending, (state) => {
+      state.loading = true;
+    });
+    builder.addCase(connectWallet.fulfilled, (state, action) => {
+      state.loading = false;
+      state.provider = action.payload?.provider ?? null;
+      state.signer = action.payload?.signer ?? null;
+      state.address = action.payload?.address ?? null;
+    });
+    builder.addCase(connectWallet.rejected, (state, action) => {
+      console.log("error: ");
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+  },
 });
 
 export default connectWalletSlice.reducer;

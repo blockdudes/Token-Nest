@@ -1,9 +1,22 @@
-import { Button, Input } from "@material-tailwind/react";
+import { Button, Input, Spinner } from "@material-tailwind/react";
 import { FaSearch, FaPlus, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { TbArrowBigDownFilled, TbArrowBigUpFilled } from "react-icons/tb";
 import { useState } from "react";
-import { BasketType } from "../types/types";
+import { BasketData } from "../types/types";
 import CopyButton from "../components/CopyButton";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import toast from "react-hot-toast";
+import {
+  getContract,
+  prepareContractCall,
+  sendAndConfirmTransaction,
+} from "thirdweb";
+import { useActiveAccount } from "thirdweb/react";
+import { basketTokenContractABI } from "../abis/basketTokenContractABI";
+import { client, tenderlyMainnet } from "../thirdWebInfo";
+import { ethers } from "ethers";
+import { getBasketContract } from "../utils/contracts";
+import { getTotalBasket } from "../app/features/totalBasketSlice";
 
 const Marketplace = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -11,531 +24,139 @@ const Marketplace = () => {
     null
   );
   const [amountInEth, setAmountInEth] = useState<number | null>(null);
+  const baskets = useAppSelector((state) => state.totalBasket.totalBasket);
+  const account = useActiveAccount();
+  const dispatch = useAppDispatch();
 
-  const baskets: (BasketType & { upvotes: number; downvotes: number })[] = [
-    {
-      name: "Basket 01",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "15.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "15.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "20.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "5.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Solana",
-          symbol: "SOL",
-          image:
-            "https://assets.coingecko.com/coins/images/4128/standard/solana.png",
-          percentage: "5.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "DAI",
-          symbol: "DAI",
-          image:
-            "https://assets.coingecko.com/coins/images/9956/standard/Badge_Dai.png",
-          percentage: "5.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "15.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "15.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "20.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "5.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Solana",
-          symbol: "SOL",
-          image:
-            "https://assets.coingecko.com/coins/images/4128/standard/solana.png",
-          percentage: "5.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "DAI",
-          symbol: "DAI",
-          image:
-            "https://assets.coingecko.com/coins/images/9956/standard/Badge_Dai.png",
-          percentage: "5.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "15.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "15.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "20.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "5.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Solana",
-          symbol: "SOL",
-          image:
-            "https://assets.coingecko.com/coins/images/4128/standard/solana.png",
-          percentage: "5.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "DAI",
-          symbol: "DAI",
-          image:
-            "https://assets.coingecko.com/coins/images/9956/standard/Badge_Dai.png",
-          percentage: "5.00%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-      upvotes: 780,
-      downvotes: 80,
-    },
-    {
-      name: "Basket 02",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-      upvotes: 780,
-      downvotes: 80,
-    },
-    {
-      name: "Basket 03",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-      upvotes: 780,
-      downvotes: 80,
-    },
-    {
-      name: "Basket 04",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-      upvotes: 780,
-      downvotes: 80,
-    },
-    {
-      name: "Basket 05",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-      upvotes: 780,
-      downvotes: 80,
-    },
-    {
-      name: "Basket 06",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-      upvotes: 780,
-      downvotes: 80,
-    },
-    {
-      name: "Basket 07",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-      upvotes: 780,
-      downvotes: 80,
-    },
-    {
-      name: "Basket 08",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-      upvotes: 780,
-      downvotes: 80,
-    },
-    {
-      name: "Basket 09",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-      upvotes: 780,
-      downvotes: 80,
-    },
-    {
-      name: "Basket 10",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "25.00%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-      upvotes: 780,
-      downvotes: 80,
-    },
-  ];
+  if (!baskets) {
+    return (
+      <div className="h-screen w-screen -translate-y-[100px] backdrop-blur-lg flex justify-center items-center">
+        <div className="p-8 bg-custom-gray-2 rounded-lg shadow-2xl">
+          <Spinner
+            className="h-[75px] w-[75px]"
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
+          />
+        </div>
+      </div>
+    );
+  }
 
   const filteredBaskets = baskets.filter((basket) =>
     basket.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleInvestInBasket = (
-    basket: BasketType & { upvotes: number; downvotes: number }
-  ) => {
+  const handleInvestInBasket = async (basket: BasketData) => {
+    if (!amountInEth) {
+      toast.error("Please enter amount in ETH");
+      return;
+    } else if (amountInEth < 0.01) {
+      toast.error("Amount in ETH must be greater than 0.01");
+      return;
+    }
+
+    try {
+      if (account) {
+        const basketTokenContract = getContract({
+          address: basket.address,
+          abi: basketTokenContractABI.abi as any,
+          client: client,
+          chain: tenderlyMainnet,
+        });
+
+        const transaction = prepareContractCall({
+          contract: basketTokenContract,
+          method:
+            "function depositBasketToken(address _to) public payable returns (bool)",
+          params: [account?.address],
+          value: BigInt(
+            ethers.utils.parseEther(amountInEth.toString()).toBigInt()
+          ),
+          gas: BigInt(10000000),
+        });
+
+        const result = await sendAndConfirmTransaction({
+          transaction: transaction,
+          account: account,
+        });
+
+        if (result) {
+          if (result.status === "success") {
+            toast.success("Deposit successfully");
+          } else {
+            toast.error("Something went wrong");
+          }
+        } else {
+          toast.error("Result not found!");
+        }
+      } else {
+        toast.error("Connect your wallet!");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
     setAmountInEth(null);
-    console.log("investing", amountInEth, " ETH in basket", basket);
+  };
+
+  const handleUpvote = async (basket: BasketData) => {
+    try {
+      if (account) {
+        const basketContract = getBasketContract(basket.address, "BASKET");
+        const transaction = prepareContractCall({
+          contract: basketContract,
+          method: "function upVote() external",
+          params: [],
+          gas: BigInt(50000000),
+        });
+
+        const result = await sendAndConfirmTransaction({
+          transaction: transaction,
+          account: account,
+        });
+        if (result.status === "success") {
+          toast.success("Upvote successfully");
+          dispatch(getTotalBasket());
+        } else {
+          toast.error("Something went wrong");
+        }
+      } else {
+        toast.error("Connect your wallet!");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
+  };
+
+  const handleDownvote = async (basket: BasketData) => {
+    try {
+      if (account) {
+        const basketContract = getBasketContract(basket.address, "BASKET");
+        const transaction = prepareContractCall({
+          contract: basketContract,
+          method: "function downVote() external",
+          params: [],
+          gas: BigInt(50000000),
+        });
+
+        const result = await sendAndConfirmTransaction({
+          transaction: transaction,
+          account: account,
+        });
+        if (result.status === "success") {
+          toast.success("Downvote successfully");
+          dispatch(getTotalBasket());
+        } else {
+          toast.error("Something went wrong");
+        }
+      } else {
+        toast.error("Connect your wallet!");
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
   };
 
   return (
@@ -621,28 +242,27 @@ const Marketplace = () => {
                       {basket.name}
                     </div>
                     <div className="w-[650px] grid grid-cols-4 justify-center items-center gap-4 mt-2">
-                      {basket.assets.slice(0, 4).map((asset, idx) => (
+                      {basket.tokens.slice(0, 4).map((token, idx) => (
                         <div
                           key={idx}
                           className="w-full flex justify-center items-center gap-2 text-white !text-base"
                         >
-                          <div className="!text-semibold">{asset.name}</div>
+                          <div className="!text-semibold">{token.symbol}</div>
 
                           <img
-                            src={asset.image}
-                            alt={asset.name}
+                            src={token.image}
+                            alt={token.symbol}
                             width={25}
                             height={25}
                           />
                           <div className="!text-medium">
-                            {asset.percentage
-                              .replace("%", "")
+                            {token.percent
+                              .toString()
                               .split(".")[0]
                               .padStart(2, "0")}
                             .
                             {(
-                              asset.percentage.replace("%", "").split(".")[1] ||
-                              "0"
+                              token.percent.toString().split(".")[1] || "0"
                             ).padEnd(2, "0")}
                             %
                           </div>
@@ -668,6 +288,10 @@ const Marketplace = () => {
                         size="lg"
                         color="white"
                         className="col-span-2 flex justify-center items-center gap-2 text-lg px-5 mx-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpvote(basket);
+                        }}
                         placeholder={undefined}
                         onPointerEnterCapture={undefined}
                         onPointerLeaveCapture={undefined}
@@ -675,13 +299,17 @@ const Marketplace = () => {
                         <div className="h-[20px] w-[20px] flex justify-center items-center">
                           <TbArrowBigUpFilled className="h-[20px] w-[20px]" />
                         </div>
-                        <span>{basket.upvotes}</span>
+                        <span>{Number(basket.upVotes) || 0}</span>
                       </Button>
                       <Button
                         variant="text"
                         size="lg"
                         color="white"
                         className="col-span-2 flex justify-center items-center gap-2 text-lg px-5 mx-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownvote(basket);
+                        }}
                         placeholder={undefined}
                         onPointerEnterCapture={undefined}
                         onPointerLeaveCapture={undefined}
@@ -689,7 +317,7 @@ const Marketplace = () => {
                         <div className="h-[20px] w-[20px] flex justify-center items-center">
                           <TbArrowBigDownFilled className="h-[20px] w-[20px]" />
                         </div>
-                        <span>{basket.downvotes}</span>
+                        <span>{Number(basket.downVotes) || 0}</span>
                       </Button>
                       <div className="flex justify-center items-center">
                         {openedBasketIndex === index ? (
@@ -711,29 +339,26 @@ const Marketplace = () => {
                   <div className="h-full w-full px-4 my-0 flex justify-between items-end">
                     <div className="h-full flex flex-col gap-2">
                       <div className="h-full w-[650px] grid grid-cols-4 justify-center items-center gap-4 mt-2">
-                        {basket.assets.slice(4).map((asset, idx) => (
+                        {basket.tokens.slice(4).map((token, idx) => (
                           <div
                             key={idx}
                             className="w-full flex justify-center items-center gap-2 text-white !text-base"
                           >
-                            <div className="!text-semibold">{asset.name}</div>
-
+                            <div className="!text-semibold">{token.symbol}</div>
                             <img
-                              src={asset.image}
-                              alt={asset.name}
+                              src={token.image}
+                              alt={token.symbol}
                               width={25}
                               height={25}
                             />
                             <div className="!text-medium">
-                              {asset.percentage
-                                .replace("%", "")
+                              {token.percent
+                                .toString()
                                 .split(".")[0]
                                 .padStart(2, "0")}
                               .
                               {(
-                                asset.percentage
-                                  .replace("%", "")
-                                  .split(".")[1] || "0"
+                                token.percent.toString().split(".")[1] || "0"
                               ).padEnd(2, "0")}
                               %
                             </div>

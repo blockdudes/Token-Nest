@@ -9,28 +9,35 @@ import {
 } from "@material-tailwind/react";
 import { useState } from "react";
 import { FaPlus } from "react-icons/fa";
-import { TokenType } from "../types/types";
+import { BasketInfo, TokenType } from "../types/types";
 import CreateBasketCard from "../components/CreateBasketCard";
 import TokenSelectorCard from "../components/TokenSelectorCard";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { prepareTxForCreatingBasket } from "../utils/contracts";
+import { sendAndConfirmTransaction } from "thirdweb";
+import { useActiveAccount } from "thirdweb/react";
+import { getTotalBasket } from "../app/features/totalBasketSlice";
+import { useAppDispatch } from "../app/hooks";
 
 const CreateBasket = () => {
   const navigate = useNavigate();
   const [basketName, setBasketName] = useState<string>("");
   const [tokens, setTokens] = useState<
-    (TokenType & { percentage: `${number}%` })[]
+    (TokenType & { percent: `${number}%` })[]
   >([]);
   const [tokenSelectorOpen, setTokenSelectorOpen] = useState<boolean>(false);
   const [amountInEth, setAmountInEth] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
+  const account = useActiveAccount();
+  const dispatch = useAppDispatch();
 
   const handleOpen = () => {
     setOpen((prev) => !prev);
   };
 
   const handleAddToken = (token: TokenType, percentage: `${number}%`) => {
-    setTokens((prev) => [...prev, { ...token, percentage }]);
+    setTokens((prev) => [...prev, { ...token, percent: percentage }]);
   };
 
   const handleRemoveToken = (token: TokenType) => {
@@ -41,9 +48,56 @@ const CreateBasket = () => {
     setTokens((prev) => {
       const index = prev.findIndex((t) => t.name === token.name);
       const newTokens = [...prev];
-      newTokens[index].percentage = percentage;
+      newTokens[index].percent = percentage;
       return newTokens;
     });
+  };
+
+  const createBasket = async (
+    name: string,
+    symbol: string,
+    selectedBasket: BasketInfo[]
+  ) => {
+    try {
+      console.log(name);
+      console.log(symbol);
+      console.log(selectedBasket);
+      console.log(amountInEth);
+      const transaction = prepareTxForCreatingBasket(
+        name,
+        symbol,
+        selectedBasket,
+        true,
+        amountInEth!
+      );
+      console.log(transaction);
+      console.log(account);
+
+      const result =
+        account &&
+        (await sendAndConfirmTransaction({
+          transaction: transaction,
+          account: account,
+        }));
+      console.log(result);
+      if (result) {
+        if (result.status === "success") {
+          toast.success("Basket created");
+          dispatch(getTotalBasket());
+          navigate("/marketplace", {
+            replace: true,
+          });
+        } else {
+          toast.error("Something went wrong");
+          throw Error("Something went wrong");
+        }
+      } else {
+        toast.error("Result not found!");
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.error(error);
+    }
   };
 
   const handleCreateBasket = () => {
@@ -58,7 +112,7 @@ const CreateBasket = () => {
     const totalPercentage = tokens
       .reduce(
         (acc, curr) =>
-          acc + parseFloat(parseFloat(curr.percentage.slice(0, -1)).toFixed(2)),
+          acc + parseFloat(parseFloat(curr.percent.slice(0, -1)).toFixed(2)),
         0
       )
       .toFixed(2);
@@ -68,13 +122,38 @@ const CreateBasket = () => {
       return;
     }
 
-    // TODO: Create basket
-    console.log(basketName, tokens);
+    var basketSymbol: string | null = null;
+    if (basketName.length > 5) {
+      if (basketName.includes(" ")) {
+        basketSymbol = basketName
+          .split(" ")
+          .map((word) => word[0])
+          .slice(0, 5)
+          .join("")
+          .toUpperCase();
+      } else if (basketName.includes("-")) {
+        basketSymbol = basketName
+          .split("-")
+          .map((word) => word[0])
+          .slice(0, 5)
+          .join("")
+          .toUpperCase();
+      } else {
+        basketSymbol = basketName.slice(0, 5).toUpperCase();
+      }
+    } else {
+      basketSymbol = basketName.toUpperCase();
+    }
 
-    toast.success("Basket created");
-    navigate("/marketplace", {
-      replace: true,
-    });
+    createBasket(
+      basketName,
+      basketSymbol,
+      tokens.map((token) => ({
+        addr: token.address,
+        percent: parseFloat(token.percent.slice(0, -1)),
+        image: token.image,
+      }))
+    );
   };
 
   return (

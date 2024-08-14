@@ -4,15 +4,16 @@ import cron from "node-cron";
 import { basketFactoryContractABI } from "./abis/basketFactoryContractABI.ts";
 import { basketTokenContractABI } from "./abis/basketTokenContractABI.ts";
 
+console.log("starting bot....");
 // Initialize the bot with the token from environment variables
 const token = "7189685058:AAE-KXiBHe1q1GIVGnudaqTa6JaLt2gttJU";
 const bot = new TelegramBot(token, { polling: true });
 
 // Set up provider and contract
 const provider = new ethers.JsonRpcProvider(
-  "https://virtual.sepolia.rpc.tenderly.co/2e8bae52-8ffd-4093-a8df-4f1592675757"
+  "https://virtual.mainnet.rpc.tenderly.co/04d3510d-01ad-4c97-9259-0bc2d169d87f"
 );
-const contractAddress = "0x9CF86E24E8A01ca6D220389d96F38B853CE32355";
+const contractAddress = "0xE4a623C65eE82002f9D4200329ad2DFA06427d93";
 
 // Create a contract instance
 const contract = new ethers.Contract(
@@ -193,4 +194,4 @@ async function sendBestBaskets() {
 
 // Schedule tasks: 8 AM and 8 PM daily
 cron.schedule("0 8 * * *", sendBestBaskets);
-cron.schedule("0 20 * * *", sendBestBaskets);
+cron.schedule("10 18 * * *", sendBestBaskets);

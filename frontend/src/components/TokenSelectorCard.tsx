@@ -10,8 +10,8 @@ const TokenSelectorCard = ({
   addToken,
   setTokenSelectorOpen,
 }: {
-  tokens: (TokenType & { percentage: `${number}%` })[];
-  addToken: (token: TokenType, percentage: `${number}%`) => void;
+  tokens: (TokenType & { percent: `${number}%` })[];
+  addToken: (token: TokenType, percent: `${number}%`) => void;
   setTokenSelectorOpen: (open: boolean) => void;
 }) => {
   const [selectedTokens, setSelectedTokens] = useState<TokenType[]>([]);
@@ -49,7 +49,12 @@ const TokenSelectorCard = ({
               }
               className="w-full h-full flex justify-start items-center gap-4 bg-custom-gray-4/10 rounded-lg p-6 cursor-pointer"
             >
-              <img src={token.image} alt={token.name} width={45} height={45} />
+              <img
+                src={token.image}
+                alt={token.name}
+                width={45}
+                height={45}
+              />
               <div className="text-2xl font-semibold">{token.name}</div>
             </div>
           </Badge>
@@ -80,7 +85,7 @@ const TokenSelectorCard = ({
                       .filter((t) => t.name !== selectedTokens[0].name)
                       .reduce(
                         (acc, curr) =>
-                          acc + parseFloat(curr.percentage.slice(0, -1)),
+                          acc + parseFloat(curr.percent.slice(0, -1)),
                         0
                       );
                   const percentagePerToken = (

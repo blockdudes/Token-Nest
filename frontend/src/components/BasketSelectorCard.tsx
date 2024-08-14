@@ -3,477 +3,82 @@ import { BasketType } from "../types/types";
 import { Badge, Button } from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
 import toast from "react-hot-toast";
+import { useAppSelector } from "../app/hooks";
 
 const BasketSelectorCard = ({
   baskets,
   addBasket,
   setBasketSelectorOpen,
 }: {
-  baskets: (BasketType & { percentage: `${number}%` })[];
-  addBasket: (basket: BasketType, percentage: `${number}%`) => void;
+  baskets: (BasketType & { percent: `${number}%` })[];
+  addBasket: (basket: BasketType, percent: `${number}%`) => void;
   setBasketSelectorOpen: (open: boolean) => void;
 }) => {
   const [selectedBaskets, setSelectedBaskets] = useState<BasketType[]>([]);
-  const basketsOptions: BasketType[] = [
-    {
-      name: "Basket 01",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Solana",
-          symbol: "SOL",
-          image:
-            "https://assets.coingecko.com/coins/images/4128/standard/solana.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "USDC",
-          symbol: "USDC",
-          image:
-            "https://assets.coingecko.com/coins/images/6319/standard/usdc.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Dogecoin",
-          symbol: "DOGE",
-          image:
-            "https://assets.coingecko.com/coins/images/5/standard/dogecoin.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Toncoin",
-          symbol: "TON",
-          image:
-            "https://assets.coingecko.com/coins/images/17980/standard/ton_symbol.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-    },
-    {
-      name: "Basket 02",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Solana",
-          symbol: "SOL",
-          image:
-            "https://assets.coingecko.com/coins/images/4128/standard/solana.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "USDC",
-          symbol: "USDC",
-          image:
-            "https://assets.coingecko.com/coins/images/6319/standard/usdc.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Dogecoin",
-          symbol: "DOGE",
-          image:
-            "https://assets.coingecko.com/coins/images/5/standard/dogecoin.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Toncoin",
-          symbol: "TON",
-          image:
-            "https://assets.coingecko.com/coins/images/17980/standard/ton_symbol.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-    },
-    {
-      name: "Basket 03",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Solana",
-          symbol: "SOL",
-          image:
-            "https://assets.coingecko.com/coins/images/4128/standard/solana.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "USDC",
-          symbol: "USDC",
-          image:
-            "https://assets.coingecko.com/coins/images/6319/standard/usdc.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Dogecoin",
-          symbol: "DOGE",
-          image:
-            "https://assets.coingecko.com/coins/images/5/standard/dogecoin.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Toncoin",
-          symbol: "TON",
-          image:
-            "https://assets.coingecko.com/coins/images/17980/standard/ton_symbol.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-    },
-    {
-      name: "Basket 04",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Solana",
-          symbol: "SOL",
-          image:
-            "https://assets.coingecko.com/coins/images/4128/standard/solana.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "USDC",
-          symbol: "USDC",
-          image:
-            "https://assets.coingecko.com/coins/images/6319/standard/usdc.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Dogecoin",
-          symbol: "DOGE",
-          image:
-            "https://assets.coingecko.com/coins/images/5/standard/dogecoin.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Toncoin",
-          symbol: "TON",
-          image:
-            "https://assets.coingecko.com/coins/images/17980/standard/ton_symbol.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-    },
-    {
-      name: "Basket 05",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Solana",
-          symbol: "SOL",
-          image:
-            "https://assets.coingecko.com/coins/images/4128/standard/solana.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "USDC",
-          symbol: "USDC",
-          image:
-            "https://assets.coingecko.com/coins/images/6319/standard/usdc.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Dogecoin",
-          symbol: "DOGE",
-          image:
-            "https://assets.coingecko.com/coins/images/5/standard/dogecoin.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Toncoin",
-          symbol: "TON",
-          image:
-            "https://assets.coingecko.com/coins/images/17980/standard/ton_symbol.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-    },
-    {
-      name: "Basket 06",
-      assets: [
-        {
-          name: "Bitcoin",
-          symbol: "BTC",
-          image:
-            "https://assets.coingecko.com/coins/images/1/standard/bitcoin.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Ethereum",
-          symbol: "ETH",
-          image:
-            "https://assets.coingecko.com/coins/images/279/standard/ethereum.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Solana",
-          symbol: "SOL",
-          image:
-            "https://assets.coingecko.com/coins/images/4128/standard/solana.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "BNB",
-          symbol: "BNB",
-          image:
-            "https://assets.coingecko.com/coins/images/825/standard/bnb-icon2_2x.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Tether",
-          symbol: "USDT",
-          image:
-            "https://assets.coingecko.com/coins/images/325/standard/Tether.png",
-          percentage: "10%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "USDC",
-          symbol: "USDC",
-          image:
-            "https://assets.coingecko.com/coins/images/6319/standard/usdc.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Dogecoin",
-          symbol: "DOGE",
-          image:
-            "https://assets.coingecko.com/coins/images/5/standard/dogecoin.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-        {
-          name: "Toncoin",
-          symbol: "TON",
-          image:
-            "https://assets.coingecko.com/coins/images/17980/standard/ton_symbol.png",
-          percentage: "15%",
-          address: "0x0000000000000000000",
-        },
-      ],
-      address: "0x0000000000000000000",
-    },
-  ];
+  const basketsOptions =
+    useAppSelector((state) => state.totalBasket.totalBasket) || [];
 
   return (
     <div className="h-full w-full flex flex-col justify-around items-center gap-2 bg-custom-gray-4/10 text-white rounded-lg p-6">
-      <div className="h-[calc(100%-85px)] w-full grid grid-cols-3 grid-rows-4 gap-4 bg-custom-gray-4/10 rounded-lg p-4">
-        {basketsOptions.map((basket, index) => (
-          <Badge
-            key={index}
-            color="green"
-            content={<MdDone />}
-            invisible={
-              !selectedBaskets.filter((b) => b.name === basket.name).length
-            }
-          >
-            <div
-              onClick={
-                selectedBaskets.filter((b) => b.name === basket.name).length > 0
-                  ? () =>
-                      setSelectedBaskets(
-                        selectedBaskets.filter((b) => b.name !== basket.name)
-                      )
-                  : () => {
-                      const tokensAlreadyAdded = baskets.filter(
-                        (b) => b.name === basket.name
-                      );
-                      console.log(tokensAlreadyAdded);
-                      if (tokensAlreadyAdded.length > 0) {
-                        toast.error("Token already added");
-                        return;
-                      }
-                      setSelectedBaskets([...selectedBaskets, basket]);
-                    }
-              }
-              className="w-full h-full flex justify-start items-center gap-4 bg-custom-gray-4/10 rounded-lg p-6 cursor-pointer"
+      <div className="h-[calc(100%-85px)] w-full bg-custom-gray-4/10 rounded-lg p-4">
+        {basketsOptions.length === 0 ? (
+          <div className="w-full h-full flex justify-center items-center gap-1 text-xl">
+            No basket found.
+            <a
+              href="/marketplace/create-basket"
+              className="underline text-blue-500"
             >
-              <div className="text-2xl font-semibold">{basket.name}</div>
-            </div>
-          </Badge>
-        ))}
+              Create one
+            </a>
+          </div>
+        ) : (
+          <div className="w-full h-full grid grid-cols-3 grid-rows-4 gap-4">
+            {basketsOptions.map((basket, index) => (
+              <Badge
+                key={index}
+                color="green"
+                content={<MdDone />}
+                invisible={
+                  !selectedBaskets.filter((b) => b.name === basket.name).length
+                }
+              >
+                <div
+                  onClick={
+                    selectedBaskets.filter((b) => b.name === basket.name)
+                      .length > 0
+                      ? () =>
+                          setSelectedBaskets(
+                            selectedBaskets.filter(
+                              (b) => b.name !== basket.name
+                            )
+                          )
+                      : () => {
+                          const tokensAlreadyAdded = baskets.filter(
+                            (b) => b.name === basket.name
+                          );
+                          console.log(tokensAlreadyAdded);
+                          if (tokensAlreadyAdded.length > 0) {
+                            toast.error("Token already added");
+                            return;
+                          }
+                          const x: BasketType = {
+                            ...basket,
+                            assets: basket.tokens.map((token) => ({
+                              ...token,
+                              percentage: `${token.percent}%`,
+                            })),
+                          };
+                          setSelectedBaskets([...selectedBaskets, x]);
+                        }
+                  }
+                  className="w-full h-full flex justify-start items-center gap-4 bg-custom-gray-4/10 rounded-lg p-6 cursor-pointer"
+                >
+                  <div className="text-2xl font-semibold">{basket.name}</div>
+                </div>
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
       <div className="w-full flex justify-end items-center gap-2">
         <Button
@@ -500,7 +105,7 @@ const BasketSelectorCard = ({
                       .filter((b) => b.name !== selectedBaskets[0].name)
                       .reduce(
                         (acc, curr) =>
-                          acc + parseFloat(curr.percentage.slice(0, -1)),
+                          acc + parseFloat(curr.percent.slice(0, -1)),
                         0
                       );
                   const percentagePerToken = (

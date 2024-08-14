@@ -1,7 +1,10 @@
 import Header from "./components/Header";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
-import { useActiveWalletConnectionStatus } from "thirdweb/react";
+import {
+  useActiveAccount,
+  useActiveWalletConnectionStatus,
+} from "thirdweb/react";
 import { connectWallet } from "./app/features/connectWalletSlice";
 import {
   BrowserRouter,
@@ -18,6 +21,9 @@ import { Toaster } from "react-hot-toast";
 import CreateBasketOfBaskets from "./pages/CreateBasketOfBaskets";
 import UserBaskets from "./pages/UserBaskets";
 import UserTokens from "./pages/UserTokens";
+import { getTotalBasket } from "./app/features/totalBasketSlice";
+import { getUserTotalBasket } from "./app/features/userTotalBasketSlice";
+import { getUserTotalBasketOfBasket } from "./app/features/userBasketOfBasketSlice";
 
 function AppRoutes() {
   const location = useLocation();
@@ -48,16 +54,23 @@ function App() {
   const dispatch = useAppDispatch();
   const walletData = useAppSelector((state) => state.connectWallet);
   const connectionStatus = useActiveWalletConnectionStatus();
+  const account = useActiveAccount();
 
   useEffect(() => {
     if (connectionStatus === "connected") {
-      dispatch(connectWallet());
+      dispatch(connectWallet()).then(() => {
+        if (account) {
+          dispatch(getTotalBasket());
+          dispatch(getUserTotalBasket(account.address));
+          dispatch(getUserTotalBasketOfBasket(account.address));
+        }
+      });
     } else {
       console.log("wallet not connected");
     }
   }, [connectionStatus]);
 
-  console.log(walletData);
+  console.log("walletData", walletData);
 
   return (
     <div className="h-screen w-screen bg-background-image bg-cover">
@@ -66,7 +79,7 @@ function App() {
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
-        <Toaster />
+        <Toaster containerClassName="z-[9999999999]" />
       </div>
     </div>
   );
