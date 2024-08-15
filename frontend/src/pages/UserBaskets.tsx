@@ -13,6 +13,8 @@ import {
 import { basketTokenContractABI } from "../abis/basketTokenContractABI";
 import { client, tenderlyMainnet } from "../thirdWebInfo";
 import { useActiveAccount } from "thirdweb/react";
+import { getBasketContract } from "../utils/contracts";
+import { maxUint256 } from "thirdweb/utils";
 
 const UserBaskets = () => {
   const [openedBasketIndex, setOpenedBasketIndex] = useState<number | null>(
@@ -90,8 +92,62 @@ const UserBaskets = () => {
     setAmountInEth(null);
   };
 
+  const basketWithdraw = async (basketTokenContractAddress: string) => {
+    try {
+      if (account) {
+        const basketTokenContract = getBasketContract(
+          basketTokenContractAddress,
+          "BASKET"
+        );
+
+        const approveTransaction = prepareContractCall({
+          contract: basketTokenContract,
+          method: "function approve(address spender, uint256 value)",
+          params: [basketTokenContractAddress, maxUint256],
+        });
+        const approveResult = await sendAndConfirmTransaction({
+          transaction: approveTransaction,
+          account: account,
+        });
+        if (approveResult) {
+          if (approveResult.status === "success") {
+            const transaction = prepareContractCall({
+              contract: basketTokenContract,
+              method:
+                "function withdrawBasketToken(address _to) public returns (bool)",
+              params: [account.address],
+            });
+            const result = await sendAndConfirmTransaction({
+              transaction: transaction,
+              account: account,
+            });
+            if (result) {
+              if (result.status === "success") {
+                console.log("deposit successfully");
+              } else {
+                console.error("Something went wrong");
+                throw Error("Something went wrong");
+              }
+            } else {
+              console.log("Result not found!");
+            }
+          } else {
+            console.error("Something went wrong");
+            throw Error("Something went wrong");
+          }
+        } else {
+          console.log("Result not found!");
+        }
+      } else {
+        throw Error("connect your wallet!");
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const handleWithdrawFromBasket = (basket: BasketData) => {
-    console.log(basket);
+    basketWithdraw(basket.address);
   };
 
   return (

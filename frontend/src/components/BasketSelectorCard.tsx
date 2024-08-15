@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BasketType } from "../types/types";
-import { Badge, Button } from "@material-tailwind/react";
+import { Badge, Button, Spinner } from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
 import toast from "react-hot-toast";
 import { useAppSelector } from "../app/hooks";
@@ -15,8 +15,23 @@ const BasketSelectorCard = ({
   setBasketSelectorOpen: (open: boolean) => void;
 }) => {
   const [selectedBaskets, setSelectedBaskets] = useState<BasketType[]>([]);
-  const basketsOptions =
-    useAppSelector((state) => state.totalBasket.totalBasket) || [];
+  const basketsOptions = useAppSelector(
+    (state) => state.totalBasket.totalBasket
+  );
+
+  if (!basketsOptions) {
+    return (
+      <div className="h-full w-full flex justify-center items-center">
+        <div className="p-8 bg-custom-gray-2 rounded-lg shadow-2xl">
+          <Spinner
+            className="h-[75px] w-[75px]"
+            onPointerEnterCapture={undefined}
+            onPointerLeaveCapture={undefined}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full w-full flex flex-col justify-around items-center gap-2 bg-custom-gray-4/10 text-white rounded-lg p-6">

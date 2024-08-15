@@ -102,8 +102,8 @@ contract ERC7621 is ERC20 {
             );
 
             address[] memory path = new address[](2);
-            path[0] = WETH;
-            path[1] = token.addr;
+            path[0] = token.addr;
+            path[1] = WETH;
 
             uniswapRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
                 amountToTransfer,

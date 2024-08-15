@@ -6,14 +6,8 @@ import { BasketData } from "../types/types";
 import CopyButton from "../components/CopyButton";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import toast from "react-hot-toast";
-import {
-  getContract,
-  prepareContractCall,
-  sendAndConfirmTransaction,
-} from "thirdweb";
+import { prepareContractCall, sendAndConfirmTransaction } from "thirdweb";
 import { useActiveAccount } from "thirdweb/react";
-import { basketTokenContractABI } from "../abis/basketTokenContractABI";
-import { client, tenderlyMainnet } from "../thirdWebInfo";
 import { ethers } from "ethers";
 import { getBasketContract } from "../utils/contracts";
 import { getTotalBasket } from "../app/features/totalBasketSlice";
@@ -272,8 +266,8 @@ const Marketplace = () => {
                       <span className="flex justify-center items-center gap-2 text-white font-medium">
                         {basket.address.length > 18
                           ? basket.address.slice(0, 7) +
-                          "..." +
-                          basket.address.slice(-7)
+                            "..." +
+                            basket.address.slice(-7)
                           : basket.address}
                         <CopyButton text={basket.address} />
                       </span>

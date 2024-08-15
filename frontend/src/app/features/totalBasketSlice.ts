@@ -45,35 +45,34 @@ export const getTotalBasket = createAsyncThunk(
           params: [],
         });
 
-        for (let token of getBasketData.basketTokens) {
-          const tokenContract = getContract({
-            address: token.addr,
-            abi: TokenContractABI.abi as any,
-            client: client,
-            chain: tenderlyMainnet,
-          });
-          const tokenSymbol = await readContract({
-            contract: tokenContract,
-            method: "symbol",
-            params: [],
-          });
+        const tokenPromises = getBasketData.basketTokens.map(
+          async (token: any) => {
+            const tokenContract = getContract({
+              address: token.addr,
+              abi: TokenContractABI.abi as any,
+              client: client,
+              chain: tenderlyMainnet,
+            });
+            const [tokenSymbol, tokenName] = await Promise.all([
+              await readContract({
+                contract: tokenContract,
+                method: "symbol",
+                params: [],
+              }),
+              await readContract({
+                contract: tokenContract,
+                method: "name",
+                params: [],
+              }),
+            ]);
 
-          const tokenName = await readContract({
-            contract: tokenContract,
-            method: "name",
-            params: [],
-          });
+            token.name = tokenName;
+            token.symbol = tokenSymbol;
+            token.balance = null;
+          }
+        );
 
-          const tokenBalance = await readContract({
-            contract: tokenContract,
-            method: "balanceOf",
-            params: [getBasketData.tokenAddress],
-          });
-
-          token.name = tokenName;
-          token.symbol = tokenSymbol;
-          token.balance = tokenBalance;
-        }
+        await Promise.all(tokenPromises);
 
         totalBasketData.push({
           name: getBasketData.name,

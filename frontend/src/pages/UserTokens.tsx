@@ -1,7 +1,6 @@
 import { Spinner } from "@material-tailwind/react";
 import { useAppSelector } from "../app/hooks";
 import TokenAssetsCard from "../components/TokenAssetsCard";
-import { BasketType } from "../types/types";
 
 const UserTokens = () => {
   const tradeBaskets = useAppSelector(

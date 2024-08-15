@@ -1,12 +1,12 @@
 import { TokenType } from "../types/types";
 
 export const tokens: TokenType[] = [
-  {
-    name: "Wrapped BTC",
-    symbol: "WBTC",
-    image: "https://etherscan.io/token/images/wbtc_28.png?v=1",
-    address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-  },
+  // {
+  //   name: "Wrapped BTC",
+  //   symbol: "WBTC",
+  //   image: "https://etherscan.io/token/images/wbtc_28.png?v=1",
+  //   address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+  // },
   {
     name: "Matic Token",
     symbol: "MATIC",
@@ -61,12 +61,12 @@ export const tokens: TokenType[] = [
     image: "https://etherscan.io/token/images/fraxfinanceeth2_32.png",
     address: "0x853d955aCEf822Db058eb8505911ED77F175b99e",
   },
-  {
-    name: "Shiba Inu",
-    symbol: "SHIB",
-    image: "https://etherscan.io/token/images/shibatoken_32.png",
-    address: "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
-  },
+  // {
+  //   name: "Shiba Inu",
+  //   symbol: "SHIB",
+  //   image: "https://etherscan.io/token/images/shibatoken_32.png",
+  //   address: "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+  // },
   {
     name: "Starknet",
     symbol: "STARKNET",

@@ -40,100 +40,115 @@ export const getUserTotalBasket = createAsyncThunk(
       });
       console.log("totalBasketAddress: : : : ", totalBasketAddress);
       let userBasketAddress: string[] = [];
-      for (const basketAddress of totalBasketAddress) {
-        const getBasket = getBasketContract(basketAddress, "BASKET");
-        const userLpToken = await readContract({
-          contract: getBasket,
-          method: "balanceOf",
-          params: [address],
-        });
 
-        console.log(userLpToken);
-
-        console.log("userLpToken: : : : ", userLpToken);
-        if (Number(userLpToken) > 0) {
-          userBasketAddress.push(basketAddress);
+      const userLpTokenPromises = totalBasketAddress.map(
+        async (basketAddress) => {
+          const getBasket = getBasketContract(basketAddress, "BASKET");
+          const userLpToken = await readContract({
+            contract: getBasket,
+            method: "balanceOf",
+            params: [address],
+          });
+          if (Number(userLpToken) > 0) {
+            userBasketAddress.push(basketAddress);
+          }
         }
-      }
+      );
+
+      await Promise.all(userLpTokenPromises);
       console.log("^^^^", userBasketAddress);
-      for (const basketAddress of userBasketAddress) {
-        const getBasket = getBasketContract(basketAddress, "BASKET");
-        const getBasketData = await readContract({
-          contract: getBasket,
-          method: "getBasketData",
-          params: [],
-        });
-        const userLpToken = await readContract({
-          contract: getBasket,
-          method: "balanceOf",
-          params: [address],
-        });
-        const totalSupply = await readContract({
-          contract: getBasket,
-          method: "totalSupply",
-          params: [],
-        });
-        const userSharePercent = Number(userLpToken / totalSupply) * 100;
-        for (let token of getBasketData.basketTokens) {
-          const tokenContract = getContract({
-            address: token.addr,
-            abi: TokenContractABI.abi as any,
-            client: client,
-            chain: tenderlyMainnet,
-          });
 
-          const tokenSymbol = await readContract({
-            contract: tokenContract,
-            method: "symbol",
+      const userBasketDataPromises = userBasketAddress.map(
+        async (basketAddress) => {
+          const getBasket = getBasketContract(basketAddress, "BASKET");
+          const getBasketData = await readContract({
+            contract: getBasket,
+            method: "getBasketData",
             params: [],
           });
-          const tokenName = await readContract({
-            contract: tokenContract,
-            method: "name",
+          const userLpToken = await readContract({
+            contract: getBasket,
+            method: "balanceOf",
+            params: [address],
+          });
+          const totalSupply = await readContract({
+            contract: getBasket,
+            method: "totalSupply",
             params: [],
           });
-          const tokenDecimals = await readContract({
-            contract: tokenContract,
-            method: "decimals",
-            params: [],
+          const userSharePercent = Number(userLpToken / totalSupply) * 100;
+
+          const tokenPromises = getBasketData.basketTokens.map(
+            async (token: any) => {
+              const tokenContract = getContract({
+                address: token.addr,
+                abi: TokenContractABI.abi as any,
+                client: client,
+                chain: tenderlyMainnet,
+              });
+
+              const [tokenSymbol, tokenName, tokenDecimals] = await Promise.all(
+                [
+                  readContract({
+                    contract: tokenContract,
+                    method: "symbol",
+                    params: [],
+                  }),
+                  readContract({
+                    contract: tokenContract,
+                    method: "name",
+                    params: [],
+                  }),
+                  readContract({
+                    contract: tokenContract,
+                    method: "decimals",
+                    params: [],
+                  }),
+                ]
+              );
+
+              const tokenBalance =
+                Number(
+                  await readContract({
+                    contract: tokenContract,
+                    method: "balanceOf",
+                    params: [basketAddress],
+                  })
+                ) /
+                10 ** Number(tokenDecimals);
+
+              token.name = tokenName;
+              token.symbol = tokenSymbol;
+              token.balance = (Number(tokenBalance) * userSharePercent) / 100;
+              token.balanceInUSD =
+                (Number(tokenBalance) * userSharePercent) / 100;
+
+              basketTotalBalanceUSD +=
+                (Number(tokenBalance) * userSharePercent) / 100;
+            }
+          );
+
+          await Promise.all(tokenPromises);
+
+          userBasketData.push({
+            name: getBasketData.name,
+            symbol: getBasketData.symbol,
+            address: getBasketData.tokenAddress,
+            tokens: getBasketData.basketTokens,
+            createdAt: getBasketData.createdAt,
+            downVotes: getBasketData.downVotes,
+            upVotes: getBasketData.upVotes,
+            percent: null,
+            balance: basketTotalBalanceUSD,
+            loading: false,
+            error: null,
           });
-          const tokenBalance =
-            Number(
-              await readContract({
-                contract: tokenContract,
-                method: "balanceOf",
-                params: [basketAddress],
-              })
-            ) /
-            10 ** Number(tokenDecimals);
 
-          console.log(tokenBalance, tokenDecimals);
-          token.name = tokenName;
-          token.symbol = tokenSymbol;
-          token.balance = (Number(tokenBalance) * userSharePercent) / 100;
-          token.balanceInUSD = (Number(tokenBalance) * userSharePercent) / 100;
-
-          console.log("****", (Number(tokenBalance) * userSharePercent) / 100)
-
-          basketTotalBalanceUSD +=
-            (Number(tokenBalance) * userSharePercent) / 100;
+          basketTotalBalanceUSD = 0;
         }
-        userBasketData.push({
-          name: getBasketData.name,
-          symbol: getBasketData.symbol,
-          address: getBasketData.tokenAddress,
-          tokens: getBasketData.basketTokens,
-          createdAt: getBasketData.createdAt,
-          downVotes: getBasketData.downVotes,
-          upVotes: getBasketData.upVotes,
-          percent: null,
-          balance: basketTotalBalanceUSD,
-          loading: false,
-          error: null,
-        });
+      );
 
-        basketTotalBalanceUSD = 0;
-      }
+      await Promise.all(userBasketDataPromises);
 
       console.log(userBasketData);
 
