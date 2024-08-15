@@ -149,6 +149,8 @@ export const getUserTotalBasketOfBasket = createAsyncThunk(
         userBasketOfBasket.push(basketOfBasketItem);
       }
 
+      console.log(userBasketOfBasket);
+
       return { userBasketOfBasket };
     } catch (error) {
       return rejectWithValue(error);

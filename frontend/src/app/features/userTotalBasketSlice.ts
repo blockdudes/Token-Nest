@@ -38,6 +38,7 @@ export const getUserTotalBasket = createAsyncThunk(
           "function getAllBaskets() public view returns (address[] memory)",
         params: [],
       });
+      console.log("totalBasketAddress: : : : ", totalBasketAddress);
       let userBasketAddress: string[] = [];
       for (const basketAddress of totalBasketAddress) {
         const getBasket = getBasketContract(basketAddress, "BASKET");
@@ -46,10 +47,15 @@ export const getUserTotalBasket = createAsyncThunk(
           method: "balanceOf",
           params: [address],
         });
+
+        console.log(userLpToken);
+
+        console.log("userLpToken: : : : ", userLpToken);
         if (Number(userLpToken) > 0) {
           userBasketAddress.push(basketAddress);
         }
       }
+      console.log("^^^^", userBasketAddress);
       for (const basketAddress of userBasketAddress) {
         const getBasket = getBasketContract(basketAddress, "BASKET");
         const getBasketData = await readContract({
@@ -106,6 +112,8 @@ export const getUserTotalBasket = createAsyncThunk(
           token.balance = (Number(tokenBalance) * userSharePercent) / 100;
           token.balanceInUSD = (Number(tokenBalance) * userSharePercent) / 100;
 
+          console.log("****", (Number(tokenBalance) * userSharePercent) / 100)
+
           basketTotalBalanceUSD +=
             (Number(tokenBalance) * userSharePercent) / 100;
 
@@ -133,6 +141,8 @@ export const getUserTotalBasket = createAsyncThunk(
           loading: false,
           error: null,
         });
+
+        basketTotalBalanceUSD = 0;
       }
 
       console.log(userBasketData);

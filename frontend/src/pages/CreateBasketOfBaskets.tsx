@@ -51,6 +51,7 @@ const CreateBasket = () => {
       console.log(name);
       console.log(symbol);
       console.log(selectedBasket);
+      console.log("*******__________*******");
       const transaction = prepareTxForCreatingBasket(
         name,
         symbol,

@@ -57,13 +57,7 @@ const Marketplace = () => {
 
     try {
       if (account) {
-        const basketTokenContract = getContract({
-          address: basket.address,
-          abi: basketTokenContractABI.abi as any,
-          client: client,
-          chain: tenderlyMainnet,
-        });
-
+        const basketTokenContract = getBasketContract(basket.address, "BASKET");
         const transaction = prepareContractCall({
           contract: basketTokenContract,
           method:
@@ -79,6 +73,8 @@ const Marketplace = () => {
           transaction: transaction,
           account: account,
         });
+
+        console.log(result);
 
         if (result) {
           if (result.status === "success") {
@@ -276,8 +272,8 @@ const Marketplace = () => {
                       <span className="flex justify-center items-center gap-2 text-white font-medium">
                         {basket.address.length > 18
                           ? basket.address.slice(0, 7) +
-                            "..." +
-                            basket.address.slice(-7)
+                          "..." +
+                          basket.address.slice(-7)
                           : basket.address}
                         <CopyButton text={basket.address} />
                       </span>

@@ -89,6 +89,9 @@ export const getTotalBasket = createAsyncThunk(
           error: null,
         });
       }
+
+      console.log(totalBasketData);
+
       return { totalBasketData };
     } catch (error) {
       return rejectWithValue(error);

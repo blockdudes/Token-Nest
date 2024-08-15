@@ -9,13 +9,15 @@ import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 contract ERC7621 is ERC20 {
     address public owner;
     IUniswapV2Router02 public uniswapRouter =
-        IUniswapV2Router02(0x86dcd3293C53Cf8EFd7303B57beb2a3F671dDE98);
-    address public constant WETH = 0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9;
+        IUniswapV2Router02(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
+    address public constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     IConstant.BasketInfo[] public listedTokens;
 
     uint256 public upVotes;
     uint256 public downVotes;
     uint256 public createdAt;
+
+    mapping(address => bool) public votedAddress;
 
     constructor(
         string memory _name,
@@ -83,11 +85,10 @@ contract ERC7621 is ERC20 {
         return true;
     }
 
-    function withdrawBasketToken(
-        address _to,
-        uint256 _lpValue
-    ) public returns (bool) {
-        require(balanceOf(_to) >= _lpValue, "ERC7621: Insufficient LP Tokens");
+    function withdrawBasketToken(address _to) public returns (bool) {
+        uint256 _lpValue = balanceOf(_to);
+        require(_lpValue > 0, "ERC7621: Insufficient LP Tokens");
+
         uint256 userSharePercent = (_lpValue / totalSupply()) * 100;
 
         for (uint256 i = 0; i < listedTokens.length; i++) {
@@ -117,11 +118,17 @@ contract ERC7621 is ERC20 {
         return true;
     }
 
-    function upVote() public {
+    modifier checkVoter(address voter) {
+        require(!votedAddress[voter], "ERC7621: Address has already voted");
+        votedAddress[voter] = true;
+        _;
+    }
+
+    function upVote() public checkVoter(msg.sender) {
         upVotes += 1;
     }
 
-    function downVote() public {
+    function downVote() public checkVoter(msg.sender) {
         downVotes += 1;
     }
 
