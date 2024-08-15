@@ -49,12 +49,7 @@ const TokenSelectorCard = ({
               }
               className="w-full h-full flex justify-start items-center gap-4 bg-custom-gray-4/10 rounded-lg p-6 cursor-pointer"
             >
-              <img
-                src={token.image}
-                alt={token.name}
-                width={45}
-                height={45}
-              />
+              <img src={token.image} alt={token.name} width={45} height={45} />
               <div className="text-2xl font-semibold">{token.name}</div>
             </div>
           </Badge>
@@ -88,11 +83,21 @@ const TokenSelectorCard = ({
                           acc + parseFloat(curr.percent.slice(0, -1)),
                         0
                       );
-                  const percentagePerToken = (
-                    maxAllowedPercentage / selectedTokens.length
-                  ).toFixed(2);
-                  selectedTokens.forEach((token) => {
-                    addToken(token, `${Number(percentagePerToken)}%`);
+                  const percentagePerToken = parseInt(
+                    (maxAllowedPercentage / selectedTokens.length).toFixed(0)
+                  );
+                  selectedTokens.forEach((token, index) => {
+                    if (index === selectedTokens.length - 1) {
+                      addToken(
+                        token,
+                        `${
+                          maxAllowedPercentage -
+                          percentagePerToken * (selectedTokens.length - 1)
+                        }%`
+                      );
+                    } else {
+                      addToken(token, `${Number(percentagePerToken)}%`);
+                    }
                   });
                   setTokenSelectorOpen(false);
                   setSelectedTokens([]);

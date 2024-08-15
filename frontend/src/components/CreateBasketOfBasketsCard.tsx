@@ -71,23 +71,19 @@ const CreateBasketOfBasketsCard = ({
                       }}
                       value={basket.percent.slice(0, -1)}
                       onChange={(e) => {
-                        const percentage: `${number}%` = `${parseFloat(
-                          parseFloat(e.target.value).toFixed(2)
-                        )}%`;
+                        var value = parseInt(e.target.value || "0");
+                        const percentage: `${number}%` = `${value}%`;
                         const maxAllowedPercentage = (
                           100 -
                           baskets
                             .filter((b) => b.name !== basket.name)
                             .reduce(
                               (acc, curr) =>
-                                acc + parseFloat(curr.percent.slice(0, -1)),
+                                acc + parseInt(curr.percent.slice(0, -1)),
                               0
                             )
-                        ).toFixed(2);
-                        if (
-                          parseFloat(e.target.value).toFixed(2) >
-                          maxAllowedPercentage
-                        ) {
+                        );
+                        if (value > maxAllowedPercentage) {
                           toast.error("Maximum percentage reached");
                           return;
                         }

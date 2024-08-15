@@ -22,7 +22,6 @@ const Dashboard = () => {
       </div>
     );
   }
-  console.log(tradeBaskets);
 
   const totalAssets = tradeBaskets.reduce(
     (acc, curr) => acc + parseFloat((curr.balance ?? 0).toFixed(2)),

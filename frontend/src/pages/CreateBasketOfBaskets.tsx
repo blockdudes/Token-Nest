@@ -77,7 +77,6 @@ const CreateBasket = () => {
           });
         } else {
           toast.error("Something went wrong");
-          throw Error("Something went wrong");
         }
       } else {
         toast.error("Result not found!");

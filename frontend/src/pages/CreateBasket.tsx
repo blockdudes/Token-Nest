@@ -89,7 +89,6 @@ const CreateBasket = () => {
           });
         } else {
           toast.error("Something went wrong");
-          throw Error("Something went wrong");
         }
       } else {
         toast.error("Result not found!");
@@ -106,19 +105,6 @@ const CreateBasket = () => {
       return;
     } else if (amountInEth < 0.01) {
       toast.error("Amount in ETH cannot be less than 0.01");
-      return;
-    }
-
-    const totalPercentage = tokens
-      .reduce(
-        (acc, curr) =>
-          acc + parseFloat(parseFloat(curr.percent.slice(0, -1)).toFixed(2)),
-        0
-      )
-      .toFixed(2);
-    if (totalPercentage !== "100.00") {
-      toast.error("Percentages do not add up to 100%");
-      toast.error("Current percentage: " + totalPercentage);
       return;
     }
 
@@ -273,6 +259,22 @@ const CreateBasket = () => {
                 toast.error("Basket must have at least one token");
                 return;
               }
+              const totalPercentage = tokens
+                .reduce(
+                  (acc, curr) =>
+                    acc +
+                    parseFloat(
+                      parseFloat(curr.percent.slice(0, -1)).toFixed(2)
+                    ),
+                  0
+                )
+                .toFixed(2);
+              if (totalPercentage !== "100.00") {
+                toast.error("Percentages do not add up to 100%");
+                toast.error("Current percentage: " + totalPercentage);
+                return;
+              }
+
               handleOpen();
             }}
             placeholder={undefined}

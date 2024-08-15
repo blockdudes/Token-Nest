@@ -64,7 +64,9 @@ const CreateBasketCard = ({
               <div className="text-2xl font-semibold">{index + 1}.</div>
               <div className="flex justify-between items-center gap-2 w-5/6 bg-custom-gray-4/10 p-4 rounded-lg">
                 <div className="flex justify-center items-center gap-4">
-                  <div className="text-3xl font-semibold">{token.name} ({token.symbol})</div>
+                  <div className="text-3xl font-semibold">
+                    {token.name} ({token.symbol})
+                  </div>
                   <img
                     src={token.image}
                     alt={token.name}
@@ -81,23 +83,18 @@ const CreateBasketCard = ({
                       }}
                       value={token.percent.slice(0, -1)}
                       onChange={(e) => {
-                        const percentage: `${number}%` = `${parseFloat(
-                          parseFloat(e.target.value).toFixed(2)
-                        )}%`;
-                        const maxAllowedPercentage = (
+                        var value = parseInt(e.target.value || "0");
+                        const percentage: `${number}%` = `${value}%`;
+                        const maxAllowedPercentage =
                           100 -
                           tokens
                             .filter((t) => t.name !== token.name)
                             .reduce(
                               (acc, curr) =>
-                                acc + parseFloat(curr.percent.slice(0, -1)),
+                                acc + parseInt(curr.percent.slice(0, -1)),
                               0
-                            )
-                        ).toFixed(2);
-                        if (
-                          parseFloat(e.target.value).toFixed(2) >
-                          maxAllowedPercentage
-                        ) {
+                            );
+                        if (value > maxAllowedPercentage) {
                           toast.error("Maximum percentage reached");
                           return;
                         }

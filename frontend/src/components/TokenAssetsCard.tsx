@@ -58,12 +58,12 @@ const TokenAssetsCard = ({
                   <div className="col-span-4 flex justify-start items-center gap-2">
                     <img
                       src={token.image}
-                      alt={token.symbol}
+                      alt={token.name}
                       className="w-8 h-8"
                     />
                     <div className="flex flex-col justify-center items-start">
                       <div className="text-base font-semibold">
-                        {token.symbol}
+                        {token.name}
                       </div>
                       <div className="text-xs">
                         <span className="font-semibold">
@@ -84,9 +84,11 @@ const TokenAssetsCard = ({
                   </div>
                   <div className="col-span-2 flex flex-col justify-center items-end text-base">
                     <div>
-                      {token.balance} {token.symbol}
+                      {(token.balance || 0).toFixed(2)} {token.symbol}
                     </div>
-                    <div className="text-xs">{token.valueInUsd} USD</div>
+                    <div className="text-xs">
+                      {token.valueInUsd.toFixed(2)} USD
+                    </div>
                   </div>
                 </React.Fragment>
               ))}

@@ -75,6 +75,7 @@ export const getUserTotalBasket = createAsyncThunk(
             client: client,
             chain: tenderlyMainnet,
           });
+
           const tokenSymbol = await readContract({
             contract: tokenContract,
             method: "symbol",
@@ -108,17 +109,6 @@ export const getUserTotalBasket = createAsyncThunk(
 
           basketTotalBalanceUSD +=
             (Number(tokenBalance) * userSharePercent) / 100;
-
-          // const response = await axios.get(
-          //     `https://pro-api.coinmarketcap.com/v1/tools/price-conversion?symbol=${token.symbol}&amount=${token.balance}&convert=USD`,
-          //     {
-          //         headers: {
-          //             'X-CMC_PRO_API_KEY': '99e8b7ac-34a8-4b56-9ac3-a00ce4165050'
-          //         }
-          //     }
-          // );
-
-          // console.log("Response: ", response);
         }
         userBasketData.push({
           name: getBasketData.name,
@@ -133,6 +123,8 @@ export const getUserTotalBasket = createAsyncThunk(
           loading: false,
           error: null,
         });
+
+        basketTotalBalanceUSD = 0;
       }
 
       console.log(userBasketData);

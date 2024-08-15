@@ -108,11 +108,21 @@ const BasketSelectorCard = ({
                           acc + parseFloat(curr.percent.slice(0, -1)),
                         0
                       );
-                  const percentagePerToken = (
-                    maxAllowedPercentage / selectedBaskets.length
-                  ).toFixed(2);
-                  selectedBaskets.forEach((basket) => {
-                    addBasket(basket, `${Number(percentagePerToken)}%`);
+                  const percentagePerToken = parseInt(
+                    (maxAllowedPercentage / selectedBaskets.length).toFixed(0)
+                  );
+                  selectedBaskets.forEach((basket, index) => {
+                    if (index === selectedBaskets.length - 1) {
+                      addBasket(
+                        basket,
+                        `${
+                          maxAllowedPercentage -
+                          percentagePerToken * (selectedBaskets.length - 1)
+                        }%`
+                      );
+                    } else {
+                      addBasket(basket, `${Number(percentagePerToken)}%`);
+                    }
                   });
                   setBasketSelectorOpen(false);
                   setSelectedBaskets([]);

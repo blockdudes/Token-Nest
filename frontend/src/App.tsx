@@ -6,13 +6,7 @@ import {
   useActiveWalletConnectionStatus,
 } from "thirdweb/react";
 import { connectWallet } from "./app/features/connectWalletSlice";
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-} from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import BasketOfBaskets from "./pages/BasketOfBaskets";
 import Dashboard from "./pages/Dashboard";
 import Marketplace from "./pages/Marketplace";
@@ -24,6 +18,7 @@ import UserTokens from "./pages/UserTokens";
 import { getTotalBasket } from "./app/features/totalBasketSlice";
 import { getUserTotalBasket } from "./app/features/userTotalBasketSlice";
 import { getUserTotalBasketOfBasket } from "./app/features/userBasketOfBasketSlice";
+import Home from "./pages/Home";
 
 function AppRoutes() {
   const location = useLocation();
@@ -42,7 +37,7 @@ function AppRoutes() {
         />
       </Route>
       <Route path="/">
-        <Route index element={<Navigate to="/dashboard" />} />
+        <Route index element={<Home />} />
         <Route path="user-baskets" element={<UserBaskets />} />
         <Route path="user-tokens" element={<UserTokens />} />
       </Route>
@@ -79,7 +74,13 @@ function App() {
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
-        <Toaster containerClassName="z-[9999999999]" />
+        <div className="z-[60]">
+          <Toaster
+            containerStyle={{
+              zIndex: 10000,
+            }}
+          />
+        </div>
       </div>
     </div>
   );
