@@ -4,7 +4,7 @@ export { basketFactoryContractABI } from "../abis/basketFactoryContractABI";
 export { TokenContractABI } from "../abis/TokenContractABI";
 
 export const BASKET_FACTORY_CONTRACT_ADDRESS =
-  "0x9628FbF29d840F787fbDbf76598C475Dc23d6fb2";
+  "0xD171E0b245811dc5c51933D84E9cEE3F16A2E6F7";
 export const WETH_CONTRACT_ADDRESS =
   "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 export const UNISWAP_V2_CONTRACT_ADDRESS =

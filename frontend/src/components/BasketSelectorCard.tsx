@@ -21,7 +21,7 @@ const BasketSelectorCard = ({
 
   if (!basketsOptions) {
     return (
-      <div className="h-full w-full flex justify-center items-center">
+      <div className="h-full w-full bg-custom-gray-4/10 rounded-lg flex justify-center items-center">
         <div className="p-8 bg-custom-gray-2 rounded-lg shadow-2xl">
           <Spinner
             className="h-[75px] w-[75px]"

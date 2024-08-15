@@ -8,7 +8,11 @@ const Header = () => {
     ? 1
     : pathname.startsWith("/basket-of-baskets")
     ? 2
-    : 1;
+    : null;
+
+  if (selectedIndex === null) {
+    return null;
+  }
 
   return (
     <div className="fixed top-0 left-0 h-[100px] w-full z-10 flex items-center justify-center bg-custom-gray-1/20 backdrop-blur-3xl rounded-b-3xl shadow-xl select-none">
