@@ -111,38 +111,19 @@ const UserBaskets = () => {
         });
         if (approveResult) {
           if (approveResult.status === "success") {
-            const transaction = prepareContractCall({
-              contract: basketTokenContract,
-              method:
-                "function withdrawBasketToken(address _to) public returns (bool)",
-              params: [account.address],
-            });
-            const result = await sendAndConfirmTransaction({
-              transaction: transaction,
-              account: account,
-            });
-            if (result) {
-              if (result.status === "success") {
-                console.log("deposit successfully");
-              } else {
-                console.error("Something went wrong");
-                throw Error("Something went wrong");
-              }
-            } else {
-              console.log("Result not found!");
-            }
+            toast.success("Withdraw successful");
           } else {
-            console.error("Something went wrong");
-            throw Error("Something went wrong");
+            toast.error("Something went wrong");
           }
         } else {
-          console.log("Result not found!");
+          toast.error("Result not found!");
         }
       } else {
-        throw Error("connect your wallet!");
+        toast.error("Connect your wallet!");
       }
     } catch (error) {
-      throw error;
+      console.log(error);
+      toast.error("Something went wrong");
     }
   };
 
